@@ -2,7 +2,9 @@
 """ Script to test CySmart.py file
 """
 
-
+# standard libraries
+import time
+# local files
 import CySmart
 
 __author__ = 'Kyle Vitautas Lopin'
@@ -13,7 +15,13 @@ print(cy)
 
 cy.start(cy.Flag_API_RETURN, com_port='\\.\COM8')
 
-cyd = cy.send_command(cy.Commands['CMD_START_SCAN'], wait_for_payload=True, wait_for_complete=False)
+count = 0
 
-print('check')
-print(cyd)
+
+while True:
+    cyd = cy.send_command(cy.Commands['CMD_START_SCAN'], wait_for_payload=False, wait_for_complete=False)
+
+    print('count: ', count)
+    print(cyd)
+    count += 1
+    time.sleep(2)

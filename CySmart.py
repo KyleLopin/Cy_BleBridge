@@ -73,12 +73,12 @@ class CySerialProcess(threading.Thread):
                 self.this_job.finished = True
 
             if self.running and self.serial_in.inWaiting():
-                # print "self.serin.inWaiting()"
+                # print "self.serial_in.inWaiting()"
                 sys.stdout.flush()
                 data = self.serial_in.read(self.serial_in.inWaiting())
                 # print self.hexPrint(data)
                 data = self.found_data(data)
-                cmd = self.hex_print(self.this_job.cmd)
+                # cmd = self.hex_print(self.this_job.cmd)
                 payload = {}
                 for response in data:
                     # print response
@@ -92,10 +92,11 @@ class CySerialProcess(threading.Thread):
                         else:
                             if not self.nextJob:
                                 self.nextJob = True
-                        if len(response['playload']) > 0 and not self.cy.EVT_COMMAND_STATUS in response['cmd'] and not self.cy.EVT_COMMAND_COMPLETE in response['cmd']:
+                        if len(response['payload']) > 0 and self.cy.EVT_COMMAND_STATUS not in response['cmd'] and \
+                                self.cy.EVT_COMMAND_COMPLETE not in response['cmd']:
                             if not response['cmd'] in payload:
                                 payload[response['cmd']] = []
-                            payload[response['cmd']].append(response['playload'])
+                            payload[response['cmd']].append(response['payload'])
 
                 print("payload:", payload,  self.nextJob)
 
@@ -113,11 +114,11 @@ class CySerialProcess(threading.Thread):
 
     def found_data(self, data):
         for cmd in data.split(binascii.unhexlify("bda7"))[1:]:
-            data = {}
+            data = dict()
             data['len'] = self.hex_print(cmd[0:2])
             data['cmd'] = cmd[2:4]
             data['request_cmd'] = cmd[4:6]
-            data['playload'] = cmd[6:]
+            data['payload'] = cmd[6:]
             self.data_array.append(data)
         return self.data_array
 
@@ -210,23 +211,23 @@ class CySmart(object):
                 print('scan: ', scan)
                 sys.stdout.flush()
 
-                Ble = {'BD_Address': [], 'RSSI': 0, 'Advertisement_Event_Data': [], 'name': ""}
-                Ble['BD_Address'] = scan[1:6]
+                ble = dict(BD_Address=[], RSSI=0, Advertisement_Event_Data=[], name="")
+                ble['BD_Address'] = scan[1:6]
                 # print self.hexPrint(scan[7:9])
-                Ble['RSSI'] = unpack('b', scan[8:9])
-                Ble['Advertisement_Event_Data'] = scan[10:-1]
+                ble['RSSI'] = unpack('b', scan[8:9])
+                ble['Advertisement_Event_Data'] = scan[10:-1]
                 if len(scan) > 10:
-                    inputString = scan
-                    print(inputString)
+                    input_string = scan
+                    print(input_string)
 
-                    if b'\t' in inputString:
-                        print(inputString.split(b'\t'))
-                        nm_length = int(self.hex_array(inputString.split(b'\t')[0])[-1], 16) - 1
-                        Ble['name'] = inputString.split(b'\t')[1][0:nm_length]
-                scan_list.append(Ble)
+                    if b'\t' in input_string:
+                        print(input_string.split(b'\t'))
+                        nm_length = int(self.hex_array(input_string.split(b'\t')[0])[-1], 16) - 1
+                        ble['name'] = input_string.split(b'\t')[1][0:nm_length]
+                scan_list.append(ble)
         return scan_list
 
-    def openConection(self, address):
+    def open_connection(self, address):
         out = dict(CMD_Resolve_and_Set_Peer_Device_BD_Address={},
                    CMD_ESTABLISH_CONNECTION={},
                    EXCHANGE_GATT_MTU_SIZE={},
@@ -264,7 +265,7 @@ class CySmart(object):
         return packed_data
 
     def exchange_gatt_mtu_size(self, size):
-        return self.send_command(self.Commands['CMD_EXCHANGE_GATT_MTU_SIZE'], self._return('H', (0x200,)))
+        return self.send_command(self.Commands['CMD_EXCHANGE_GATT_MTU_SIZE'], self._return('H', (size,)))
 
     def read_using_characteristic_uuid(self, start_handle, end_handle, uuid):
         return self.send_command(self.Commands['CMD_READ_USING_CHARACTERISTIC_UUID'],
@@ -290,18 +291,18 @@ class CySmart(object):
         package = pack("H", *(len(package),)) + package
         return self.send_command(self.Commands['CMD_WRITE_CHARACTERISTIC_VALUE'], package)
 
-    def Read_All_characteristics(self, data_set):
+    def read_all_characteristics(self, data_set):
         for se in data_set:
             data_set[se] = self.read_characteristic_value(se)
         return data_set
 
-    def Initiate_Pairing(self):
+    def initiate_pairing(self):
         cmd = pack('H H', *(self.Flag_IMMEDIATE_RESPONSE, self.Flag_RETURN))
         return self.send_command(self.Commands['CMD_INITIATE_PAIRING_REQUEST'], cmd)
 
-    def Update_Connection_Parameter(self, Response):
+    def update_connection_parameter(self, response):
         cmd = ''
-        if Response:
+        if response:
             cmd += binascii.unhexlify("040003000000")
         else:
             cmd += binascii.unhexlify("040003000100")
