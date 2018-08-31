@@ -23,25 +23,28 @@ class CySerialCommand(object):
 
 
 class CySerialProcess(threading.Thread):
-    def __init__(self, in_q: queue.PriorityQueue, out_q: queue.PriorityQueue, com_port: str, cy: CySmart):
+    def __init__(self, in_q: queue.PriorityQueue, out_q: queue.PriorityQueue, com_port: str, cy: 'CySmart'):
         self.cy = cy
         self.in_Q = in_q
         self.out_Q = out_q
         self.serial_in = serial.Serial(com_port, 115200)
         self.running = True
         self.nextJob = True
+        self.this_job = None
         self.data_array = []
         threading.Thread.__init__(self)
 
-    def hexPrint(self, s):
-        # print(s, s.hex())
+    @staticmethod
+    def hex_print(s):
+        print('jj: ', s, s.hex())
         if type(s) is not int:
             # return ":".join("{:02x}".format(c) for c in s)
             return s.hex()
+        print('returing hex: ', s.hex())
         return s.hex()  # hack
         # return "{:02x}".format(s)
 
-    def getTimeout(self):
+    def get_timeout(self):
         if self.this_job:
             if self.this_job.starTime and not self.this_job.finished:
                 a = self.this_job.starTime
@@ -62,9 +65,8 @@ class CySerialProcess(threading.Thread):
                 self.serial_in.write(self.this_job.command)
                 while self.serial_in.out_waiting:
                     pass
-            if self.getTimeout() > 2000:
-                print
-                "Timeout"
+            if self.get_timeout() > 2000:
+                print("Timeout")
                 sys.stdout.flush()
                 self.nextJob = True
                 self.out_Q.put(True)
@@ -75,33 +77,31 @@ class CySerialProcess(threading.Thread):
                 sys.stdout.flush()
                 data = self.serial_in.read(self.serial_in.inWaiting())
                 # print self.hexPrint(data)
-                data = self.foundData(data)
-                cmd = self.hexPrint(self.this_job.cmd)
-                playload = {}
-                for responce in data:
-                    # print responce
-                    if self.this_job.cmd == responce['request_cmd']:
-                        # print responce['cmd']
+                data = self.found_data(data)
+                cmd = self.hex_print(self.this_job.cmd)
+                payload = {}
+                for response in data:
+                    # print response
+                    if self.this_job.cmd == response['request_cmd']:
+                        # print response['cmd']
 
-                        if self.this_job.whateforCompleate:
-                            if self.cy.EVT_COMMAND_COMPLETE in responce['cmd']:
+                        if self.this_job.wait_for_complete:
+                            if self.cy.EVT_COMMAND_COMPLETE in response['cmd']:
                                 self.nextJob = True
 
                         else:
-                            if self.nextJob == False:
+                            if not self.nextJob:
                                 self.nextJob = True
-                        if len(responce['playload']) > 0 and not self.cy.EVT_COMMAND_STATUS in responce[
-                            'cmd'] and not self.cy.EVT_COMMAND_COMPLETE in responce['cmd']:
-                            if not responce['cmd'] in playload:
-                                playload[responce['cmd']] = []
-                            playload[responce['cmd']].append(responce['playload'])
+                        if len(response['playload']) > 0 and not self.cy.EVT_COMMAND_STATUS in response['cmd'] and not self.cy.EVT_COMMAND_COMPLETE in response['cmd']:
+                            if not response['cmd'] in payload:
+                                payload[response['cmd']] = []
+                            payload[response['cmd']].append(response['playload'])
 
-                # print "playload:",playload,  self.nextJob
+                print("payload:", payload,  self.nextJob)
 
-
-                if len(playload) > 0:
-                    self.out_Q.put(playload)
-                elif self.nextJob == True and self.this_job.whateforpayload == False:
+                if len(payload) > 0:
+                    self.out_Q.put(payload)
+                elif self.nextJob and not self.this_job.wait_for_payload:
                     self.out_Q.put(True)
 
                 if self.nextJob:
@@ -111,10 +111,10 @@ class CySerialProcess(threading.Thread):
         self.running = False
         self.serial_in.close()
 
-    def foundData(self, data):
+    def found_data(self, data):
         for cmd in data.split(binascii.unhexlify("bda7"))[1:]:
             data = {}
-            data['len'] = self.hexPrint(cmd[0:2])
+            data['len'] = self.hex_print(cmd[0:2])
             data['cmd'] = cmd[2:4]
             data['request_cmd'] = cmd[4:6]
             data['playload'] = cmd[6:]
@@ -125,7 +125,7 @@ class CySerialProcess(threading.Thread):
 class CySmart(object):
     Commands = {
         'CMD_Resolve_and_Set_Peer_Device_BD_Address': binascii.unhexlify("A1FE"),
-        'CMD_Hedder': binascii.unhexlify("4359"),
+        'CMD_Header': binascii.unhexlify("4359"),
         'CMD_Footer': binascii.unhexlify("0000"),
         'CMD_INIT_BLE_STACK': binascii.unhexlify("07FC"),
         'CMD_START_SCAN': binascii.unhexlify("93FE"),
@@ -164,9 +164,13 @@ class CySmart(object):
     lock = threading.Lock()
 
     def __init__(self):
-        pass
+        self.Flag_RETURN = None
+        self.in_q = None
+        self.out_q = None
+        self.myThread = None
 
-    def hexPrint(self, s):
+    @staticmethod
+    def hex_print(s):
         print('s: ', s)
         print('s2: ', s.hex())
         if type(s) is not int:
@@ -174,31 +178,31 @@ class CySmart(object):
             # return ":".join("{:02x}".format(ord(c)) for c in s)
         return "{:02x}".format(s)
 
-    def hexArray(self, s):
+    def hex_array(self, s):
         print("hex array: ", s)
-        return self.hexPrint(s).split(b":")
+        return self.hex_print(s).split(b":")
 
-    def sendCommand(self, command, payload=binascii.unhexlify("0000"), whateforPayload=False, whateforCompleate=True):
+    def send_command(self, command, payload=binascii.unhexlify("0000"), wait_for_payload=False, wait_for_complete=True):
 
-        # __init__(self,heder, cmd, payload, whateforpayload, whateforCompleate):
+        # __init__(self, heder, cmd, payload, whateforpayload, whateforCompleate):
         self.in_q.put(
-            CySerialCommand(self.Commands['CMD_Hedder'], command, payload, whateforPayload, whateforCompleate))
+            CySerialCommand(self.Commands['CMD_Header'], command, payload, wait_for_payload, wait_for_complete))
         while self.out_q.empty():
             pass
         return self.out_q.get()
 
-    def start(self, _flag, ComPort='\\.\COM6'):
+    def start(self, _flag, com_port='\\.\COM5'):
         self.Flag_RETURN = _flag
         self.in_q = queue.PriorityQueue()
         self.out_q = queue.PriorityQueue()
 
-        self.myThread = CySerialProcess(self.in_q, self.out_q, ComPort, self)
+        self.myThread = CySerialProcess(self.in_q, self.out_q, com_port, self)
         self.myThread.start()
 
-        self.sendCommand(self.Commands['CMD_INIT_BLE_STACK'], self.Commands['CMD_Footer'])
+        self.send_command(self.Commands['CMD_INIT_BLE_STACK'], self.Commands['CMD_Footer'])
 
-    def getScanData(self, cyd):
-        scanList = []
+    def get_scan_data(self, cyd):
+        scan_list = []
 
         if self.EVT_SCAN_PROGRESS_RESULT in cyd:
             for scan in cyd[self.EVT_SCAN_PROGRESS_RESULT]:
@@ -217,10 +221,10 @@ class CySmart(object):
 
                     if b'\t' in inputString:
                         print(inputString.split(b'\t'))
-                        nm_length = int(self.hexArray(inputString.split(b'\t')[0])[-1], 16) - 1
+                        nm_length = int(self.hex_array(inputString.split(b'\t')[0])[-1], 16) - 1
                         Ble['name'] = inputString.split(b'\t')[1][0:nm_length]
-                scanList.append(Ble)
-        return scanList
+                scan_list.append(Ble)
+        return scan_list
 
     def openConection(self, address):
         out = dict(CMD_Resolve_and_Set_Peer_Device_BD_Address={},
@@ -228,72 +232,72 @@ class CySmart(object):
                    EXCHANGE_GATT_MTU_SIZE={},
                    Read_using_Characteristic_UUID={})
 
-        out['CMD_Resolve_and_Set_Peer_Device_BD_Address'] = self.sendCommand(
+        out['CMD_Resolve_and_Set_Peer_Device_BD_Address'] = self.send_command(
             self.Commands['CMD_Resolve_and_Set_Peer_Device_BD_Address'],
             binascii.unhexlify("0700") + address + self.Commands['CMD_Footer']
         )
 
-        out['CMD_ESTABLISH_CONNECTION'] = self.sendCommand(
+        out['CMD_ESTABLISH_CONNECTION'] = self.send_command(
             self.Commands['CMD_ESTABLISH_CONNECTION'],
             binascii.unhexlify("0700") + address + self.Commands['CMD_Footer']
         )
 
-        out['EXCHANGE_GATT_MTU_SIZE'] = self.EXCHANGE_GATT_MTU_SIZE(0x0200)
+        out['EXCHANGE_GATT_MTU_SIZE'] = self.exchange_gatt_mtu_size(0x0200)
 
-        out['Read_using_Characteristic_UUID'] = self.Read_using_Characteristic_UUID(0x0001, 0xFFFF, 0x2A00)
+        out['Read_using_Characteristic_UUID'] = self.read_using_characteristic_uuid(0x0001, 0xFFFF, 0x2A00)
         return out
 
-    def close_Conection(self):
-        return self.sendCommand(self.Commands['CMD_TERMINATE_CONNECTION'], binascii.unhexlify("02000400"))
+    def close_connection(self):
+        return self.send_command(self.Commands['CMD_TERMINATE_CONNECTION'], binascii.unhexlify("02000400"))
 
-    def _RETURN(self, pack, prams):
+    def _return(self, _pack, prams):
         values = (self.Flag_RETURN,)
-        if type(prams) == tuple and type(pack) == str:
+        if type(prams) == tuple and type(_pack) == str:
             values += prams
 
-        pack = '=H ' + pack
-        s = Struct(pack)
+        _pack = '=H ' + _pack
+        s = Struct(_pack)
         packed_data = s.pack(*values)
         h = Struct('H')
-        packsize = h.pack(s.size)
-        packed_data = packsize + packed_data
+        pack_size = h.pack(s.size)
+        packed_data = pack_size + packed_data
         return packed_data
 
-    def EXCHANGE_GATT_MTU_SIZE(self, size):
-        return self.sendCommand(self.Commands['CMD_EXCHANGE_GATT_MTU_SIZE'], self._RETURN('H', (0x200,)))
+    def exchange_gatt_mtu_size(self, size):
+        return self.send_command(self.Commands['CMD_EXCHANGE_GATT_MTU_SIZE'], self._return('H', (0x200,)))
 
-    def Read_using_Characteristic_UUID(self, Start_Handle, End_Handle, UUID):
-        return self.sendCommand(self.Commands['CMD_READ_USING_CHARACTERISTIC_UUID'],
-                                self._RETURN('B H H H', (0x01, UUID, Start_Handle, End_Handle)))
+    def read_using_characteristic_uuid(self, start_handle, end_handle, uuid):
+        return self.send_command(self.Commands['CMD_READ_USING_CHARACTERISTIC_UUID'],
+                                 self._return('B H H H', (0x01, uuid, start_handle, end_handle)))
 
-    def Read_Characteristic_Value(self, Attribute):
-        cmd = pack('H H H', *(self.Flag_RETURN, self.Flag_RETURN, Attribute))
-        Response = self.sendCommand(self.Commands['CMD_READ_CHARACTERISTIC_VALUE'], cmd)
+    def read_characteristic_value(self, attribute):
+        cmd = pack('H H H', *(self.Flag_RETURN, self.Flag_RETURN, attribute))
+        response = self.send_command(self.Commands['CMD_READ_CHARACTERISTIC_VALUE'], cmd)
 
-        # print"Read_Characteristic_Value: ",Response
-        # event, rest = Response[0:3], Response[4:]
-        out_Response = []
-        if self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE in Response:
-            for cs in Response[self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE]:
-                out_Response.append(cs[4:])
+        # print"Read_Characteristic_Value: ",response
+        # event, rest = response[0:3], response[4:]
+        out__response = []
+        if self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE in response:
+            for cs in response[self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE]:
+                out__response.append(cs[4:])
 
-        return out_Response
+        return out__response
 
-    def Write_Characteristic_Value(self, Attribute, payload):
-        pramcount = binascii.unhexlify("0400")
+    def write_characteristic_value(self, attribute, payload):
+        pram_count = binascii.unhexlify("0400")
         le = len(payload)
-        package = pramcount + pack("H", *(Attribute,)) + pack("H", *(le,)) + payload
+        package = pram_count + pack("H", *(attribute,)) + pack("H", *(le,)) + payload
         package = pack("H", *(len(package),)) + package
-        return self.sendCommand(self.Commands['CMD_WRITE_CHARACTERISTIC_VALUE'], package)
+        return self.send_command(self.Commands['CMD_WRITE_CHARACTERISTIC_VALUE'], package)
 
     def Read_All_characteristics(self, data_set):
         for se in data_set:
-            data_set[se] = self.Read_Characteristic_Value(se)
+            data_set[se] = self.read_characteristic_value(se)
         return data_set
 
     def Initiate_Pairing(self):
         cmd = pack('H H', *(self.Flag_IMMEDIATE_RESPONSE, self.Flag_RETURN))
-        return self.sendCommand(self.Commands['CMD_INITIATE_PAIRING_REQUEST'], cmd)
+        return self.send_command(self.Commands['CMD_INITIATE_PAIRING_REQUEST'], cmd)
 
     def Update_Connection_Parameter(self, Response):
         cmd = ''
@@ -302,7 +306,7 @@ class CySmart(object):
         else:
             cmd += binascii.unhexlify("040003000100")
 
-        return self.sendCommand(self.Commands['CMD_UPDATE_CONNECTION_PARAMETER_RESPONSE'], cmd)
+        return self.send_command(self.Commands['CMD_UPDATE_CONNECTION_PARAMETER_RESPONSE'], cmd)
 
     def close(self):
         self.myThread.kill()
