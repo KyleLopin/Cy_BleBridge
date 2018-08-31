@@ -77,6 +77,7 @@ class CySerialProcess(threading.Thread):
                 sys.stdout.flush()
                 data = self.serial_in.read(self.serial_in.inWaiting())
                 # print self.hexPrint(data)
+                print('data:  ', data)
                 data = self.found_data(data)
                 # cmd = self.hex_print(self.this_job.cmd)
                 payload = {}
