@@ -13,7 +13,7 @@ __author__ = 'Kyle Vitautas Lopin'
 cy = CySmart.CySmart()
 print(cy)
 
-cy.start(cy.Flag_API_RETURN, com_port='\\.\COM8')
+cy.start(cy.Flag_API_RETURN)
 
 count = 0
 

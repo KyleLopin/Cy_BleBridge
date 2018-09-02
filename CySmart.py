@@ -13,6 +13,13 @@ import sys
 import datetime
 
 
+# Serial communication settings
+BAUD_RATE = 115200
+STOP_BITS = serial.STOPBITS_ONE
+PARITY = serial.PARITY_NONE
+BYTE_SIZE = serial.EIGHTBITS
+
+
 class CySerialCommand(object):
     def __init__(self, heder, cmd, payload, wait_for_payload, wait_for_complete):
         self.command = heder + cmd + payload
@@ -23,11 +30,11 @@ class CySerialCommand(object):
 
 
 class CySerialProcess(threading.Thread):
-    def __init__(self, in_q: queue.PriorityQueue, out_q: queue.PriorityQueue, com_port: str, cy: 'CySmart'):
+    def __init__(self, in_q: queue.PriorityQueue, out_q: queue.PriorityQueue, com_port: serial.Serial, cy: 'CySmart'):
         self.cy = cy
         self.in_Q = in_q
         self.out_Q = out_q
-        self.serial_in = serial.Serial(com_port, 115200)
+        self.serial_in = com_port
         self.running = True
         self.nextJob = True
         self.this_job = None
@@ -62,6 +69,7 @@ class CySerialProcess(threading.Thread):
                 self.data_array = []
                 self.this_job = self.in_Q.get()
                 self.this_job.starTime = datetime.datetime.now()
+                print("writing to device: ", self.this_job.command)
                 self.serial_in.write(self.this_job.command)
                 while self.serial_in.out_waiting:
                     pass
@@ -77,7 +85,8 @@ class CySerialProcess(threading.Thread):
                 sys.stdout.flush()
                 data = self.serial_in.read(self.serial_in.inWaiting())
                 # print self.hexPrint(data)
-                print('data:  ', data)
+                print('data read:  ', data)
+                data = binascii.hexlify(data)
                 data = self.found_data(data)
                 # cmd = self.hex_print(self.this_job.cmd)
                 payload = {}
@@ -101,7 +110,8 @@ class CySerialProcess(threading.Thread):
 
                 print("payload:", payload,  self.nextJob)
 
-                if len(payload) > 0:
+                # if len(payload) > 0:
+                if payload:
                     self.out_Q.put(payload)
                 elif self.nextJob and not self.this_job.wait_for_payload:
                     self.out_Q.put(True)
@@ -109,19 +119,23 @@ class CySerialProcess(threading.Thread):
                 if self.nextJob:
                     self.this_job.finished = True
 
-    def kill(self):
-        self.running = False
-        self.serial_in.close()
-
     def found_data(self, data):
-        for cmd in data.split(binascii.unhexlify("bda7"))[1:]:
+        print('found data: ', data, type(data), binascii.unhexlify("bda7"))
+        print('split: ', data.split(b"bda7"))
+        for cmd in data.split(b"bda7")[1:]:
+            print('cmd: ', cmd)
             data = dict()
             data['len'] = self.hex_print(cmd[0:2])
             data['cmd'] = cmd[2:4]
             data['request_cmd'] = cmd[4:6]
             data['payload'] = cmd[6:]
             self.data_array.append(data)
+        print('data array: ', self.data_array)
         return self.data_array
+
+    def kill(self):
+        self.running = False
+        self.serial_in.close()
 
 
 class CySmart(object):
@@ -159,9 +173,9 @@ class CySmart(object):
     EVT_COMMAND_COMPLETE = binascii.unhexlify("7F04")
     EVT_READ_CHARACTERISTIC_VALUE_RESPONSE = binascii.unhexlify("0606")
 
-    dataarray = []
+    data_array = []
     flag = False
-    conectioninfo = {}
+    connection_info = {}
 
     lock = threading.Lock()
 
@@ -193,7 +207,9 @@ class CySmart(object):
             pass
         return self.out_q.get()
 
-    def start(self, _flag, com_port='\\.\COM5'):
+    def start(self, _flag, com_port=None):
+        if not com_port:
+            com_port = self.auto_find_com_port()
         self.Flag_RETURN = _flag
         self.in_q = queue.PriorityQueue()
         self.out_q = queue.PriorityQueue()
@@ -202,6 +218,25 @@ class CySmart(object):
         self.myThread.start()
 
         self.send_command(self.Commands['CMD_INIT_BLE_STACK'], self.Commands['CMD_Footer'])
+
+    def auto_find_com_port(self):
+        available_ports = find_available_ports()  # list of serial devices
+        id_send_message = b"43 59 07 FC 00 00"
+        id_return_section = "bd a7"
+        for port in available_ports:  # type: serial.Serial
+            device = serial.Serial(port.port, baudrate=BAUD_RATE, stopbits=STOP_BITS,
+                                   parity=PARITY, bytesize=BYTE_SIZE, timeout=1)
+            # device.write(binascii.unhexlify(id_send_message))
+            device.write(convert_to_bytes(id_send_message))
+            time.sleep(0.1)
+            return_message = device.read_all()
+            return_message = convert_to_string(return_message)
+            # print("return message: ", return_message)
+            if id_return_section in return_message:
+                print('Found Cypress Dongle')
+                return device
+            else:
+                device.close()
 
     def get_scan_data(self, cyd):
         scan_list = []
@@ -313,3 +348,59 @@ class CySmart(object):
     def close(self):
         self.myThread.kill()
         self.myThread.join()
+
+
+def convert_to_bytes(_string: str)-> bytes:
+    """
+    Take an input string of hex numbers (0-F) and convert bytes string
+    Note: For some reason strip() was not working when I wrote this so I used replace
+    :param _string: string of hex values (0-F)
+    :return: bytes string
+    """
+    # print('input string: ', _string)
+    # print("hold: ", _string.replace(b' ', b'').replace(b':', b''))
+    # print('new string: ', binascii.unhexlify(_string.replace(b' ', b'').replace(b':', b'')))
+    return binascii.unhexlify(_string.replace(b' ', b'').replace(b':', b''))
+
+
+def convert_to_string(_bytes: bytes)-> str:
+    """
+    Take in bytes and convert string of hex values of the bytes
+    :param _bytes: bytes
+    :return: string of hex values
+    """
+    # print('input bytes: ', _bytes)
+    # print('string: ', binascii.hexlify(_bytes))
+    # print('string2: ', _bytes.hex())
+    # print('string3: ', " ".join(["{:02x}".format(x) for x in _bytes]))
+    return " ".join(["{:02x}".format(x) for x in _bytes])
+
+
+def find_available_ports():
+    """
+    Find all COM ports that are available
+    :return:
+    """
+    import glob
+    # taken from http://stackoverflow.com/questions/12090503/listing-available-com-ports-with-python
+
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i+1) for i in range(32)]
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        ports = glob.glob('/dev/tty[A-Za-z]*')
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsupported platform')
+
+    available_ports = []
+    for port in ports:
+        try:
+            device = serial.Serial(port=port, write_timeout=0.5,
+                                   inter_byte_timeout=1, baudrate=115200,
+                                   parity=serial.PARITY_EVEN, stopbits=1)
+            device.close()
+            available_ports.append(device)
+        except (OSError, serial.SerialException):
+            pass
+    return available_ports

@@ -1,0 +1,19 @@
+Using Free Device Monitoring Studio to sniff USB / serial between CYBLE dongle and CYSMart
+
+First connecting
+total of 24 read and writes back and forth.  All writes are start with CY and then hex codes
+
+All communications with device start with the host computer writing, then reading
+
+First read and write is:
+ 43 59 07 FC 00 00                                 CY.ü..
+
+ BD A7 06 00 7E 04 07 FC 00 00 BD A7 06 00 7F 04   ½§..~..ü..½§...
+ 07 FC 00 00                                       .ü..
+
+
+
+
+Disconnecting device from CySMart sends the code:
+43 59 08 FC 00 00                                  CY.ü..
+
