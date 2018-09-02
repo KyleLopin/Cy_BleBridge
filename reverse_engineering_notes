@@ -11,9 +11,129 @@ First read and write is:
  BD A7 06 00 7E 04 07 FC 00 00 BD A7 06 00 7F 04   ½§..~..ü..½§...
  07 FC 00 00                                       .ü..
 
+07 FC is thought to be the command to initialize the BLE stack
+
+To use the auto finder,the "43 59 07 FC 00 00" is sent to the device and if the serial port
+response with any message with "BD A7" in it, it is assumed this is the proper port
+TODO: use window client to get name of the device using:
+https://stackoverflow.com/questions/7756695/python-how-to-detect-device-name-id-on-a-serial-com
+import win32com.client
+wmi = win32com.client.GetObject("winmgmts:")
+for serial in wmi.InstancesOf("Win32_SerialPort"):
+       print (serial.Name, serial.Description)
+
+========================================
+First connecting the device also does this: write:
+ 43 59 0A FC 00 00                                 CY.ü..
+
+then read
+
+BD A7 06 00 7E 04 0A FC 00 00 BD A7 37 00 0A 04    ½§..~..ü..½§7...
+ 0A FC 16 43 79 70 72 65 73 73 20 53 65 6D 69 63   .ü.Cypress Semic
+ 6F 6E 64 75 63 74 6F 72 00 1B 43 79 53 6D 61 72   onductor..CySmar
+ 74 20 42 4C 45 20 34 2E 31 20 55 53 42 20 44 6F   t BLE 4.1 USB Do
+ 6E 67 6C 65 00 BD A7 06 00 7F 04 0A FC 00 00      ngle.½§....ü..
+
+with cysmart responding
+[15:48:00:530] : 'Get Device Description Info' request sent
+[15:48:00:540] : 'Command Status' event received
+[15:48:00:540] : 	Status: BLE_STATUS_OK
+[15:48:00:540] : 'Get Device Description Response' event received
+[15:48:00:540] : 	Manufacturer String: 'Cypress Semiconductor'
+[15:48:00:540] : 	Product String: 'CySmart BLE 4.1 USB Dongle'
+[15:48:00:542] : 'Command Complete' event received
+[15:48:00:542] : 	Status: BLE_STATUS_OK
+
+
+
+
+
+
+
+
+
+
+
+Now that the device is found lets start scanning.  Starting the scan in CySmart has the R/W:
+
+43 59 93 FE 00 00                                  CY“þ..
+
+This is the read from the device when there is a random BLE device with address
+24:01:AF:90:1A:CE and advertising event data: 1E:FF:06:00:01:09:20:00:6F:A6:D0:60:B3:F7:A9:56:4B:AA:44:46:69:9A:C1:B7:79:89:B5:3C:96:D2:39
+
+ BD A7 06 00 7E 04 93 FE 00 00 BD A7 2D 00 8A 06   ½§..~.“þ..½§-.Š.
+ 93 FE 03 CE 1A 90 AF 01 24 01 B1 1F 1E FF 06 00   “þ.Î.¯.$.±..ÿ..
+ 01 09 20 00 6F A6 D0 60 B3 F7 A9 56 4B AA 44 46   .. .o¦Ð`³÷©VKªDF
+ 69 9A C1 B7 79 89 B5 3C 96 D2 39                  išÁ·y‰µ<–Ò9
+
+Plugging in custom BLE device cause the device to send the message:
+
+BD A7 1E 00 8A 06 93 FE 00 F0 FF 00 50 A0 00 00    ½§..Š.“þ.ðÿ.P ..
+ CB 10 02 01 06 0C 09 4E 55 20 53 65 6E 73 6F 72   Ë......NU Sensor
+ 20 31 BD A7 1B 00 8A 06 93 FE 04 F0 FF 00 50 A0    1½§..Š.“þ.ðÿ.P 
+ 00 00 CB 0D 0C 09 4E 55 20 53 65 6E 73 6F 72 20   ..Ë...NU Sensor
+ 31                                                1
+where the device name is "NU Sensor 1" with address 00:A0:50:00:FF:F0
+AD data 0 is 02 01 06 and AD data 1 is 0C 09 -NU Sensor 1
+
+
+
+
+
+
+
+
+
+
+stop scan sends message
+43 59 94 FE 00 00                                  CY”þ..
+
+and receives the message:
+ BD A7 06 00 7E 04 94 FE 00 00 BD A7 02 00 91 06   ½§..~.”þ..½§..‘.
+ BD A7 06 00 7F 04 94 FE 00 00                     ½§...”þ..
 
 
 
 Disconnecting device from CySMart sends the code:
 43 59 08 FC 00 00                                  CY.ü..
 
+
+
+
+Splice:
+
+C:\Python_35\python.exe C:/Users/Kyle/PycharmProjects/Cy_BleBridge/.idea/CySmart_test_script.py
+<CySmart.CySmart object at 0x007CC310>
+Found Cypress Dongle
+writing to device:  b'CY\x07\xfc\x00\x00'
+data read:   bd a7 06 00 7e 04 07 fc 00 00 bd a7 06 00 7f 04 07 fc 00 00
+found data:  b'bda706007e0407fc0000bda706007f0407fc0000' <class 'bytes'> b'\xbd\xa7'
+split:  [b'', b'06007e0407fc0000', b'06007f0407fc0000']
+cmd:  b'06007e0407fc0000'
+jj:  b'06' 3036
+cmd:  b'06007f0407fc0000'
+jj:  b'06' 3036
+data array:  [{'cmd': b'00', 'payload': b'0407fc0000', 'request_cmd': b'7e', 'len': '3036'}, {'cmd': b'00', 'payload': b'0407fc0000', 'request_cmd': b'7f', 'len': '3036'}]
+payload: {} False
+Timeout
+writing to device:  b'CY\x93\xfe\x00\x00'
+data read:   bd a7 06 00 7e 04 93 fe 00 00 bd a7 1e 00 8a 06 93 fe 00 f0 ff 00 50 a0 00 00 d1 10 02 01 06 0c 09 4e 55 20 53 65 6e 73 6f 72 20 31 bd a7 1b 00 8a 06 93 fe 04 f0 ff 00 50 a0
+found data:  b'bda706007e0493fe0000bda71e008a0693fe00f0ff0050a00000d1100201060c094e552053656e736f722031bda71b008a0693fe04f0ff0050a0' <class 'bytes'> b'\xbd\xa7'
+split:  [b'', b'06007e0493fe0000', b'1e008a0693fe00f0ff0050a00000d1100201060c094e552053656e736f722031', b'1b008a0693fe04f0ff0050a0']
+cmd:  b'06007e0493fe0000'
+jj:  b'06' 3036
+cmd:  b'1e008a0693fe00f0ff0050a00000d1100201060c094e552053656e736f722031'
+jj:  b'1e' 3165
+cmd:  b'1b008a0693fe04f0ff0050a0'
+jj:  b'1b' 3162
+data array:  [{'cmd': b'00', 'payload': b'0493fe0000', 'request_cmd': b'7e', 'len': '3036'}, {'cmd': b'00', 'payload': b'0693fe00f0ff0050a00000d1100201060c094e552053656e736f722031', 'request_cmd': b'8a', 'len': '3165'}, {'cmd': b'00', 'payload': b'0693fe04f0ff0050a0', 'request_cmd': b'8a', 'len': '3162'}]
+payload: {} False
+data read:   00 00 d1 0d 0c 09 4e 55 20 53 65 6e 73 6f 72 20 31
+found data:  b'0000d10d0c094e552053656e736f722031' <class 'bytes'> b'\xbd\xa7'
+split:  [b'0000d10d0c094e552053656e736f722031']
+data array:  [{'cmd': b'00', 'payload': b'0493fe0000', 'request_cmd': b'7e', 'len': '3036'}, {'cmd': b'00', 'payload': b'0693fe00f0ff0050a00000d1100201060c094e552053656e736f722031', 'request_cmd': b'8a', 'len': '3165'}, {'cmd': b'00', 'payload': b'0693fe04f0ff0050a0', 'request_cmd': b'8a', 'len': '3162'}]
+payload: {} False
+Timeout
+count:  0
+True
+second read:  b''

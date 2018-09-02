@@ -21,8 +21,8 @@ BYTE_SIZE = serial.EIGHTBITS
 
 
 class CySerialCommand(object):
-    def __init__(self, heder, cmd, payload, wait_for_payload, wait_for_complete):
-        self.command = heder + cmd + payload
+    def __init__(self, header, cmd, payload, wait_for_payload, wait_for_complete):
+        self.command = header + cmd + payload
         self.cmd = cmd
         self.wait_for_payload = wait_for_payload
         self.wait_for_complete = wait_for_complete
@@ -62,7 +62,7 @@ class CySerialProcess(threading.Thread):
 
     def run(self):
         while self.running:
-            time.sleep(.1)
+            time.sleep(1)
             # print "loop"
             if not self.in_Q.empty() and self.running and self.nextJob:
                 self.nextJob = False
@@ -85,7 +85,7 @@ class CySerialProcess(threading.Thread):
                 sys.stdout.flush()
                 data = self.serial_in.read(self.serial_in.inWaiting())
                 # print self.hexPrint(data)
-                print('data read:  ', data)
+                print('data read:  ', convert_to_string(data))
                 data = binascii.hexlify(data)
                 data = self.found_data(data)
                 # cmd = self.hex_print(self.this_job.cmd)
@@ -209,12 +209,13 @@ class CySmart(object):
 
     def start(self, _flag, com_port=None):
         if not com_port:
-            com_port = self.auto_find_com_port()
+            device = self.auto_find_com_port()
+            self.device = device
         self.Flag_RETURN = _flag
         self.in_q = queue.PriorityQueue()
         self.out_q = queue.PriorityQueue()
 
-        self.myThread = CySerialProcess(self.in_q, self.out_q, com_port, self)
+        self.myThread = CySerialProcess(self.in_q, self.out_q, device, self)
         self.myThread.start()
 
         self.send_command(self.Commands['CMD_INIT_BLE_STACK'], self.Commands['CMD_Footer'])

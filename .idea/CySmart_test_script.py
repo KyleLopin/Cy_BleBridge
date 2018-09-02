@@ -18,10 +18,10 @@ cy.start(cy.Flag_API_RETURN)
 count = 0
 
 
-while True:
-    cyd = cy.send_command(cy.Commands['CMD_START_SCAN'], wait_for_payload=False, wait_for_complete=False)
+cyd = cy.send_command(cy.Commands['CMD_START_SCAN'], wait_for_payload=False, wait_for_complete=False)
 
-    print('count: ', count)
-    print(cyd)
-    count += 1
-    time.sleep(2)
+print('count: ', count)
+print(cyd)
+count += 1
+time.sleep(2)
+print('second read: ', cy.device.read_all())

@@ -1,0 +1,307 @@
+[15:21:14:050] : 'Init BLE Stack' request sent
+016230: 2018-09-02 15:21:14.0516708 +0.0005922
+
+ 43 59 07 FC 00 00                                 CY.ü..
+
+[15:21:14:431] : 'Command Status' event received
+[15:21:14:431] : 	Status: BLE_STATUS_OK
+[15:21:14:432] : 'Command Complete' event received
+[15:21:14:432] : 	Status: BLE_STATUS_OK
+
+016254: 2018-09-02 15:21:14.4317905 +0.0000157
+
+ BD A7 06 00 7E 04 07 FC 00 00 BD A7 06 00 7F 04   ½§..~..ü..½§...
+ 07 FC 00 00                                       .ü..
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:487] : 'Get BLE Stack Version' request sent
+ 2018-09-02 15:21:14.4886257 +0.0567345
+
+ 43 59 0C FC 00 00                                 CY.ü..
+
+[15:21:14:932] : 'Command Status' event received
+[15:21:14:932] : 	Status: BLE_STATUS_OK
+[15:21:14:932] : 'Get BLE Stack Version Response' event received
+[15:21:14:932] : 	BLE Stack Version: 2.3.0.46
+
+ 2018-09-02 15:21:14.9324892 +0.0000135
+
+ BD A7 06 00 7E 04 0C FC 00 00 BD A7 08 00 03 04   ½§..~..ü..½§....
+ 0C FC 02 03 00 2E BD A7 06 00 7F 04 0C FC 00 00   .ü....½§....ü..
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:932] : 'Get Bonded Devices List' request sent
+15:21:14.9329306 +0.0002521
+
+ 43 59 9E FE 00 00                                 CYžþ..
+
+
+[15:21:14:933] : 'Command Complete' event received
+[15:21:14:933] : 	Status: BLE_STATUS_OK
+[15:21:14:934] : 'Command Status' event received
+[15:21:14:934] : 	Status: BLE_STATUS_OK
+
+ 15:21:14.9340609 +0.0000093
+
+ BD A7 06 00 7E 04 9E FE 00 00 BD A7 04            ½§..~.žþ..½§.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:934] : 'Get Local Device BD Address' request sent
+ 15:21:14.9349844 +0.0000035
+
+ 43 59 82 FE 01 00 01                              CY‚þ...
+
+[15:21:14:935] : 'Get Bonded Devices List Response' event received
+[15:21:14:936] : 'Command Complete' event received
+[15:21:14:936] : 	Status: BLE_STATUS_OK
+[15:21:14:937] : 'Command Status' event received
+[15:21:14:937] : 	Status: BLE_ERROR_INVALID_OPERATION
+ 15:21:14.9352096 +0.0000090
+
+ 00 95 06 9E FE BD A7 06 00 7F 04 9E FE 00 00 BD   .•.žþ½§...žþ..½
+ A7 06 00 7E 04 82 FE 02 00                        §..~.‚þ..
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:937] : 'Get Whitelist' request sent
+15:21:14.9377632 +0.0005319
+
+ 43 59 8F FE 00 00                                 CYþ..
+
+[15:21:14:939] : 'Command Status' event received
+[15:21:14:939] : 	Status: BLE_STATUS_OK
+[15:21:14:940] : 'Get Whitelist Response' event received
+[15:21:14:941] : 'Command Complete' event received
+[15:21:14:941] : 	Status: BLE_STATUS_OK
+15:21:14.9387834 +0.0000119
+
+ BD A7 06 00 7E 04 8F FE 00 00 BD A7 04 00 89 06   ½§..~.þ..½§..‰.
+ 8F FE BD A7 06 00 7F 04 8F FE 00 00               þ½§...þ..
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:941] : 'Get Bonded Devices List' request sent
+15:21:14.9414922 +0.0002384
+
+ 43 59 9E FE 00 00                                 CYžþ..
+
+
+[15:21:14:943] : 'Command Status' event received
+[15:21:14:943] : 	Status: BLE_STATUS_OK
+[15:21:14:943] : 'Get Bonded Devices List Response' event received
+[15:21:14:944] : 'Command Complete' event received
+[15:21:14:944] : 	Status: BLE_STATUS_OK
+
+ 15:21:14.9426529 +0.0000253
+
+ BD A7 06 00 7E 04 9E FE 00 00 BD A7 04 00 95 06   ½§..~.žþ..½§..•.
+ 9E FE BD A7 06 00 7F 04 9E FE 00 00               žþ½§...žþ..
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+15:21:14:945] : 'Get Local Device BD Address' request sent
+ 15:21:14.9451429 +0.0001485
+
+ 43 59 82 FE 01 00 00                              CY‚þ...
+
+[15:21:14:947] : 'Command Status' event received
+[15:21:14:947] : 	Status: BLE_ERROR_INVALID_OPERATION
+
+ 15:21:14.9462606 +0.0000112
+
+ BD A7 06 00 7E 04 82 FE 02 00                     ½§..~.‚þ..
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+15:21:14:947] : 'Get local device security keys' request sent
+ 15:21:14.9472461 +0.0002691
+
+ 43 59 A2 FE 00 00                                 CY¢þ..
+
+
+[15:21:14:949] : 'Command Status' event received
+[15:21:14:949] : 	Status: BLE_STATUS_OK
+[15:21:14:955] : 'Get local device security keys response' event received
+[15:21:14:955] : 	Key flags: INITIATOR_ENCRYPTION_INFORMATION, INITIATOR_IDENTITY_INFORMATION, INITIATOR_SIGNATURE_KEY, RESPONDER_ENCRYPTION_INFORMATION, RESPONDER_IDENTITY_INFORMATION, RESPONDER_SIGNATURE_KEY
+[15:21:14:955] : 	Long Term Key (LTK): [D6:93:E8:A4:23:55:48:99:1D:77:61:E6:63:2B:10:8E]
+[15:21:14:955] : 	Encrypted Diversifier (EDIV) and Random Number: [99:1F:26:1E:F6:09:97:2E:AD:7E]
+[15:21:14:955] : 	Identity Resolving Key (IRK): [0A:2D:F4:65:E3:BD:7B:49:1E:B4:C0:95:95:13:46:73]
+[15:21:14:955] : 	Identification Address: [0x00A0500B2E14, PUBLIC_ADDRESS]
+[15:21:14:955] : 	Connection Signature Resolving Key (CSRK): [90:D5:06:95:92:ED:91:D7:A8:9E:2C:DC:4A:93:5B:F9]
+[15:21:14:956] : 'Command Complete' event received
+[15:21:14:956] : 	Status: BLE_STATUS_OK
+ 15:21:14.9482954 +0.0000106
+
+ BD A7 06 00 7E 04 A2 FE 00 00 BD A7 4A 00 99 06   ½§..~.¢þ..½§J.™.
+ A2 FE 77 10 D6 93 E8 A4 23 55 48 99 1D 77 61 E6   ¢þw.Ö“è¤#UH™.waæ
+ 63 2B 10 8E 0A 99 1F 26 1E F6 09 97 2E AD 7E 10   c+.Ž.™.&.ö.—.­~.
+ 0A 2D F4 65 E3 BD 7B 49 1E B4 C0 95 95 13 46 73   .-ôeã½{I.´À••.Fs
+ 14 2E 0B 50 A0 00 00 10 90 D5 06 95 92 ED 91 D7   ...P ...Õ.•’í‘×
+ A8 9E 2C DC 4A 93 5B F9 BD A7 06 00 7F 04 A2 FE   ¨ž,ÜJ“[ù½§...¢þ
+ 00 00                                             ..
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:956] : 'Get Tx Power' request sent
+ 15:21:14.9567415 +0.0001639
+
+ 43 59 0E FC 01 00 00                              CY.ü...
+
+[15:21:14:956] : 	Channel Group ID: ADV_CHANNEL
+[15:21:14:958] : 'Command Status' event received
+[15:21:14:958] : 	Status: BLE_STATUS_OK
+[15:21:14:959] : 'Get Tx Power Response' event received
+[15:21:14:959] : 	Channel Group ID: ADV_CHANNEL
+[15:21:14:959] : 	Channel Power: 3 dBm
+[15:21:14:960] : 'Command Complete' event received
+[15:21:14:960] : 	Status: BLE_STATUS_OK
+15:21:14.9577745 +0.0000122
+
+ BD A7 06 00 7E 04 0E FC 00 00 BD A7 06 00 0C 04   ½§..~..ü..½§....
+ 0E FC 00 08 BD A7 06 00 7F 04 0E FC 00 00         .ü..½§....ü..
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:960] : 'Get Tx Power' request sent
+ 15:21:14.9605340 +0.0001623
+
+ 43 59 0E FC 01 00 01                              CY.ü...
+
+[15:21:14:960] : 	Channel Group ID: CONNECTION_CHANNEL
+[15:21:14:962] : 'Command Status' event received
+[15:21:14:962] : 	Status: BLE_STATUS_OK
+[15:21:14:963] : 'Get Tx Power Response' event received
+[15:21:14:963] : 	Channel Group ID: CONNECTION_CHANNEL
+[15:21:14:963] : 	Channel Power: 3 dBm
+[15:21:14:964] : 'Command Complete' event received
+[15:21:14:964] : 	Status: BLE_STATUS_OK
+ 15:21:14.9615817 +0.0000192
+
+ BD A7 06 00 7E 04 0E FC 00 00 BD A7 06 00 0C 04   ½§..~..ü..½§....
+ 0E FC 01 08 BD A7 06 00 7F 04 0E FC 00 00         .ü..½§....ü..
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:964] : 'Set Device IO Capabilities' request sent
+15:21:14.9644186 +0.0001864
+
+ 43 59 80 FE 01 00 04                              CY€þ...
+
+[15:21:14:964] : 	IO Capabilities: KEYBOARD_AND_DISPLAY
+[15:21:14:966] : 'Command Status' event received
+[15:21:14:966] : 	Status: BLE_ERROR_INVALID_OPERATION
+15:21:14.9653730 +0.0000119
+
+ BD A7 06 00 7E 04 80 FE 02 00                     ½§..~.€þ..
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:966] : 'Set identity address' request sent
+ 15:21:14.9664544 +0.0002297
+
+ 43 59 9A FE 07 00 20 43 50 50 A0 00 00            CYšþ.. CPP ..
+
+[15:21:14:966] : 	ID Address Type: PUBLIC_ADDRESS
+[15:21:14:966] : 	ID Address: 20:43:50:50:A0:00:00:00
+[15:21:14:969] : 'Command Status' event received
+[15:21:14:969] : 	Status: BLE_ERROR_INVALID_OPERATION
+ 15:21:14.9682454 +0.0000144
+
+ BD A7 06 00 7E 04 9A FE 02 00                     ½§..~.šþ..
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:969] : 'Set Scan Parameters' request sent
+  15:21:14.9693788 +0.0003859
+
+ 43 59 8B FE 0B 00 00 01 10 00 10 00 00 00 00 00   CY‹þ............
+ 01                                                .
+
+
+[15:21:14:969] : 	Scan Type: ACTIVE_SCAN
+[15:21:14:969] : 	Scan Interval: 10.00 ms
+[15:21:14:969] : 	Scan Window: 10.00 ms
+[15:21:14:969] : 	Local BD address type: PUBLIC_ADDRESS
+[15:21:14:969] : 	Scan Procedure Type: OBSERVATION_PROCEDURE
+[15:21:14:969] : 	Scan Filter Policy: 0x00
+[15:21:14:969] : 	Duplicate Filter Policy: ENABLE_DUPLICATE_FILTERING
+[15:21:14:969] : 	Scan Timeout: Continuous
+[15:21:14:972] : 'Command Status' event received
+[15:21:14:972] : 	Status: BLE_ERROR_INVALID_OPERATION
+15:21:14.9713107 +0.0000517
+
+ BD A7 06 00 7E 04 8B FE 02 00                     ½§..~.‹þ..
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:14:972] : 'Set Connection Parameters' request sent
+15:21:14.9726911 +0.0006759
+
+ 43 59 89 FE 19 00 10 00 10 00 00 00 00 00 00 00   CY‰þ............
+ 00 00 00 06 00 08 00 00 00 0A 00 00 00 00 00      ...............
+
+[15:21:14:972] : 	Connection Interval Minimum: 7.50 ms
+[15:21:14:972] : 	Connection Interval Maximum: 10.00 ms
+[15:21:14:972] : 	Slave Latency: 0
+[15:21:14:972] : 	Supervision Timeout: 100 ms
+[15:21:14:972] : 	Initiator Filter Policy: 0x00
+[15:21:14:972] : 	Local BD address type: PUBLIC_ADDRESS
+[15:21:14:972] : 	Connection CE Length Minimum: .00 ms
+[15:21:14:972] : 	Connection CE Length Maximum: .00 ms
+[15:21:14:972] : 	Connection Scan Interval: 10.00 ms
+[15:21:14:972] : 	Connection Scan Window: 10.00 ms
+Error: gpm.M0101: Invalid operation
+ CyDesigner.Common.Base.CyStsMsgDisp+CyDialogResult
+Error: gpm.M0101: Invalid operation
+ CyDesigner.Common.Base.CyStsMsgDisp+CyDialogResult
+Error: gpm.M0101: Invalid operation
+ CyDesigner.Common.Base.CyStsMsgDisp+CyDialogResult
+
+ 15:21:14.9758623 +0.0000238
+
+ BD A7 06 00 7E 04 06 00 01 00                     ½§..~.....
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+[15:21:19:973] : 'Set Local Device Security' request sent
+
+[15:21:19:973] : 	Security Level: 0x11
+[15:21:19:973] : 	Encryption Key Size: 16
+[15:21:19:973] : 	Bonding: 0x01
+[15:21:19:973] : 	Pairing properties: NONE
+[15:21:19:973] : 	Secure connection only mode: Disable
+Error: gpm.M1303: Set device security level failed. Command not allowed.
+ CyDesigner.Common.Base.CyStsMsgDisp+CyDialogResult
+[15:21:19:975] : 'Misc Event Notification' received
+[15:21:19:975] : 	Event Code: 0x0004 (HCI_STATUS)
+[15:21:19:975] : 	Event Data: [0C]
+
+
+
+
+
+
+
+
+
