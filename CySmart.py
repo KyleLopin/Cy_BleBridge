@@ -47,7 +47,7 @@ class CySerialProcess(threading.Thread):
         if type(s) is not int:
             # return ":".join("{:02x}".format(c) for c in s)
             return s.hex()
-        print('returing hex: ', s.hex())
+        print('returning hex: ', s.hex())
         return s.hex()  # hack
         # return "{:02x}".format(s)
 
@@ -124,6 +124,12 @@ class CySerialProcess(threading.Thread):
         print('split: ', data.split(b"bda7"))
         for cmd in data.split(b"bda7")[1:]:
             print('cmd: ', cmd)
+
+            # divide len by 2 as there are 2 hex values per byte and subtract the first 2 bytes
+            # which are the length
+            actual_len = len(cmd)/2-2
+            signalled_len = int(cmd[0:2], 16)  # how many bytes the payload is suppose to ne
+            print('len = ', actual_len, signalled_len, cmd[0:2])
             data = dict()
             data['len'] = self.hex_print(cmd[0:2])
             data['cmd'] = cmd[2:4]
@@ -222,8 +228,10 @@ class CySmart(object):
 
     def auto_find_com_port(self):
         available_ports = find_available_ports()  # list of serial devices
-        id_send_message = b"43 59 07 FC 00 00"
-        id_return_section = "bd a7"
+        id_send_message = b"43 59 0A FC 00 00"
+        # id_return_section = "43 79 70 72 65 73 73"  # Cypress
+        id_return_section1 = b"Cypress Semiconductor"
+        id_return_section2 = b"CySmart BLE"
         for port in available_ports:  # type: serial.Serial
             device = serial.Serial(port.port, baudrate=BAUD_RATE, stopbits=STOP_BITS,
                                    parity=PARITY, bytesize=BYTE_SIZE, timeout=1)
@@ -231,9 +239,8 @@ class CySmart(object):
             device.write(convert_to_bytes(id_send_message))
             time.sleep(0.1)
             return_message = device.read_all()
-            return_message = convert_to_string(return_message)
-            # print("return message: ", return_message)
-            if id_return_section in return_message:
+            # return_message = convert_to_string(return_message)
+            if id_return_section1 in return_message and id_return_section2 in return_message:
                 print('Found Cypress Dongle')
                 return device
             else:

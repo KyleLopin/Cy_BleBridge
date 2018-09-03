@@ -22,6 +22,7 @@ cyd = cy.send_command(cy.Commands['CMD_START_SCAN'], wait_for_payload=False, wai
 
 print('count: ', count)
 print(cyd)
-count += 1
-time.sleep(2)
-print('second read: ', cy.device.read_all())
+while True:
+    count += 1
+    time.sleep(2)
+    print('second read: ', cy.device.read_all())
