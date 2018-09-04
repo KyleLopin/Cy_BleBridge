@@ -3,6 +3,7 @@
 """
 
 # standard libraries
+import sys
 import time
 # local files
 import CySmart
@@ -11,18 +12,33 @@ __author__ = 'Kyle Vitautas Lopin'
 
 
 cy = CySmart.CySmart()
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 print(cy)
-
+print("=============================================")
 cy.start(cy.Flag_API_RETURN)
 
 count = 0
 
-
-cyd = cy.send_command(cy.Commands['CMD_START_SCAN'], wait_for_payload=False, wait_for_complete=False)
-
+print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+cyd = cy.send_command(cy.Commands['CMD_START_SCAN'], wait_for_payload=True, wait_for_complete=True)
+print("=============================================")
 print('count: ', count)
 print(cyd)
-while True:
-    count += 1
-    time.sleep(2)
-    print('second read: ', cy.device.read_all())
+print(";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
+cy.send_command(cy.Commands['CMD_STOP_SCAN'])
+
+if isinstance(cyd, dict) and cy.EVT_SCAN_PROGRESS_RESULT in cyd:
+    clients = cy.get_scan_data(cyd)
+    print('clients: ', clients)
+    for client in clients:
+        if b"NU Sensor" in client['name']:
+            print('client: ', client)
+            print(b'name: '+client['name'])
+            print('ad', cy.hex_array(client['BD_Address']))
+            print('address: ' + str(cy.hex_array(client['BD_Address'])))
+
+            print("=====   START CONNECTION   ============")
+            sys.stdout.flush()
+            cy.open_connection(client['BD_Address'])
+            cir = cy.read_characteristic_value(0x000E)
+            print('cir = ', cir)

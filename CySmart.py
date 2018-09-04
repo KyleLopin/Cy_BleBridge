@@ -30,7 +30,7 @@ class CySerialCommand(object):
 
 
 class CySerialProcess(threading.Thread):
-    def __init__(self, in_q: queue.PriorityQueue, out_q: queue.PriorityQueue, com_port: serial.Serial, cy: 'CySmart'):
+    def __init__(self, in_q: queue.Queue, out_q: queue.Queue, com_port: serial.Serial, cy: 'CySmart'):
         self.cy = cy
         self.in_Q = in_q
         self.out_Q = out_q
@@ -64,7 +64,8 @@ class CySerialProcess(threading.Thread):
         while self.running:
             time.sleep(1)
             # print "loop"
-            if not self.in_Q.empty() and self.running and self.nextJob:
+            # if not self.in_Q.empty() and self.running and self.nextJob:
+            if not self.in_Q.empty() and self.nextJob:
                 self.nextJob = False
                 self.data_array = []
                 self.this_job = self.in_Q.get()
@@ -80,21 +81,24 @@ class CySerialProcess(threading.Thread):
                 self.out_Q.put(True)
                 self.this_job.finished = True
 
-            if self.running and self.serial_in.inWaiting():
+            # if self.running and self.serial_in.inWaiting():
+            if self.serial_in.inWaiting():
                 # print "self.serial_in.inWaiting()"
                 sys.stdout.flush()
                 data = self.serial_in.read(self.serial_in.inWaiting())
                 # print self.hexPrint(data)
-                print('data read:  ', convert_to_string(data))
-                data = binascii.hexlify(data)
+                print('raw data: ', data)
+                # print('data read:  ', convert_to_string(data))
+                # data = binascii.hexlify(data)
                 data = self.found_data(data)
                 # cmd = self.hex_print(self.this_job.cmd)
                 payload = {}
                 for response in data:
-                    # print response
+                    # print('response:', response)
+                    # print(self.this_job.cmd, response['request_cmd'], self.this_job.cmd == response['request_cmd'])
                     if self.this_job.cmd == response['request_cmd']:
                         # print response['cmd']
-
+                        # print('complete: ', self.cy.EVT_COMMAND_COMPLETE)
                         if self.this_job.wait_for_complete:
                             if self.cy.EVT_COMMAND_COMPLETE in response['cmd']:
                                 self.nextJob = True
@@ -102,13 +106,14 @@ class CySerialProcess(threading.Thread):
                         else:
                             if not self.nextJob:
                                 self.nextJob = True
-                        if len(response['payload']) > 0 and self.cy.EVT_COMMAND_STATUS not in response['cmd'] and \
+                        if len(response['payload']) > 0 and \
+                                self.cy.EVT_COMMAND_STATUS not in response['cmd'] and \
                                 self.cy.EVT_COMMAND_COMPLETE not in response['cmd']:
                             if not response['cmd'] in payload:
                                 payload[response['cmd']] = []
                             payload[response['cmd']].append(response['payload'])
 
-                print("payload:", payload,  self.nextJob)
+                print("payload:", payload,  self.nextJob, self.out_Q.qsize())
 
                 # if len(payload) > 0:
                 if payload:
@@ -120,18 +125,23 @@ class CySerialProcess(threading.Thread):
                     self.this_job.finished = True
 
     def found_data(self, data):
-        print('found data: ', data, type(data), binascii.unhexlify("bda7"))
-        print('split: ', data.split(b"bda7"))
-        for cmd in data.split(b"bda7")[1:]:
-            print('cmd: ', cmd)
+        # print('found data: ', data, type(data), binascii.unhexlify("bda7"))
+        # print('split: ', data.split(binascii.unhexlify("bda7")))
+        # data = binascii.hexlify(data)
+        # print('hex data: ', data)
+        for cmd in data.split(binascii.unhexlify("bda7"))[1:]:
+            # print('cmd: ', cmd)
 
             # divide len by 2 as there are 2 hex values per byte and subtract the first 2 bytes
             # which are the length
-            actual_len = len(cmd)/2-2
-            signalled_len = int(cmd[0:2], 16)  # how many bytes the payload is suppose to ne
-            print('len = ', actual_len, signalled_len, cmd[0:2])
+            actual_len = len(cmd)-2
+            signalled_len = int.from_bytes(cmd[0:2], byteorder='little')  # how many bytes the payload is suppose to ne
+            # print('len = ', actual_len, signalled_len, cmd[0:2], )
+            if actual_len != signalled_len:
+                print("Error in reading: add code to see if more bytes are in the serial port")
+
             data = dict()
-            data['len'] = self.hex_print(cmd[0:2])
+            data['len'] = signalled_len
             data['cmd'] = cmd[2:4]
             data['request_cmd'] = cmd[4:6]
             data['payload'] = cmd[6:]
@@ -140,6 +150,7 @@ class CySerialProcess(threading.Thread):
         return self.data_array
 
     def kill(self):
+        print("kill")
         self.running = False
         self.serial_in.close()
 
@@ -193,16 +204,17 @@ class CySmart(object):
 
     @staticmethod
     def hex_print(s):
-        print('s: ', s)
-        print('s2: ', s.hex())
+        # print('s: ', s)
+        # print('s2: ', s.hex())
+        # print('s3: ', ":".join("{:02x}".format(c) for c in s))
         if type(s) is not int:
-            return s.hex()
-            # return ":".join("{:02x}".format(ord(c)) for c in s)
+            # return s.hex()
+            return ":".join("{:02x}".format(c) for c in s)
         return "{:02x}".format(s)
 
     def hex_array(self, s):
-        print("hex array: ", s)
-        return self.hex_print(s).split(b":")
+        # print("hex array: ", s)
+        return self.hex_print(s).split(":")
 
     def send_command(self, command, payload=binascii.unhexlify("0000"), wait_for_payload=False, wait_for_complete=True):
 
@@ -218,12 +230,12 @@ class CySmart(object):
             device = self.auto_find_com_port()
             self.device = device
         self.Flag_RETURN = _flag
-        self.in_q = queue.PriorityQueue()
-        self.out_q = queue.PriorityQueue()
+        self.in_q = queue.Queue(maxsize=1000)
+        self.out_q = queue.Queue(maxsize=1000)
 
         self.myThread = CySerialProcess(self.in_q, self.out_q, device, self)
         self.myThread.start()
-
+        print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
         self.send_command(self.Commands['CMD_INIT_BLE_STACK'], self.Commands['CMD_Footer'])
 
     def auto_find_com_port(self):
@@ -247,6 +259,12 @@ class CySmart(object):
                 device.close()
 
     def get_scan_data(self, cyd):
+        """
+        Take in a packet of data from the Cypress CySmart dongle and parse out the information
+        of periphiral devices that the dongles has noticed
+        :param cyd: dictionary of the response command as a key, and payload as the value
+        :return:
+        """
         scan_list = []
 
         if self.EVT_SCAN_PROGRESS_RESULT in cyd:
@@ -266,6 +284,7 @@ class CySmart(object):
 
                     if b'\t' in input_string:
                         print(input_string.split(b'\t'))
+                        print('cehck: ', )
                         nm_length = int(self.hex_array(input_string.split(b'\t')[0])[-1], 16) - 1
                         ble['name'] = input_string.split(b'\t')[1][0:nm_length]
                 scan_list.append(ble)
