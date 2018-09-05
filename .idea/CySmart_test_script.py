@@ -31,8 +31,9 @@ if isinstance(cyd, dict) and cy.EVT_SCAN_PROGRESS_RESULT in cyd:
     clients = cy.get_scan_data(cyd)
     print('clients: ', clients)
     for client in clients:
+        print('client: ', client)
         if b"NU Sensor" in client['name']:
-            print('client: ', client)
+
             print(b'name: '+client['name'])
             print('ad', cy.hex_array(client['BD_Address']))
             print('address: ' + str(cy.hex_array(client['BD_Address'])))

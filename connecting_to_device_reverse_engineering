@@ -1,0 +1,392 @@
+[12:59:27:618] : 'Stop Scan' request sent
+12:59:27.6192572 +20.6078226
+
+ 43 59 94 FE 00 00                                 CY”þ..
+
+[12:59:27:620] : 'Command Status' event received
+[12:59:27:620] : 	Status: BLE_STATUS_OK
+[12:59:27:622] : 'Scan Stopped Notification' event received
+[12:59:27:653] : 'Command Complete' event received
+[12:59:27:653] : 	Status: BLE_STATUS_OK
+ 12:59:27.6202864 +0.0000109
+
+ BD A7 06 00 7E 04 94 FE 00 00 BD A7 02 00 91 06   ½§..~.”þ..½§..‘.
+ BD A7 06 00 7F 04 94 FE 00 00                     ½§...”þ..
+
+
+[12:59:27:654] : 'Resolve and Set Peer Device BD Address' request sent
+[12:59:27:654] : 	BD Address Type: PUBLIC_ADDRESS
+[12:59:27:654] : 	BD Address: F0:FF:00:50:A0:00:00:00
+
+ 12:59:27.6588338 +0.0363731
+
+ 43 59 A1 FE 07 00 F0 FF 00 50 A0 00 00            CY¡þ..ðÿ.P ..
+
+
+[12:59:27:662] : 'Command Status' event received
+[12:59:27:662] : 	Status: BLE_STATUS_OK
+[12:59:27:662] : 'Resolve and Set Peer Device BD Address Response' event received
+[12:59:27:662] : 	Status: 0x01
+[12:59:27:663] : 'Command Complete' event received
+[12:59:27:663] : 	Status: BLE_STATUS_OK
+
+ 12:59:27.6605135 +0.0000160
+
+ BD A7 06 00 7E 04 A1 FE 00 00 BD A7 05 00 98 06   ½§..~.¡þ..½§..˜.
+ A1 FE 01 BD A7 06 00 7F 04 A1 FE 00 00            ¡þ.½§...¡þ..
+
+
+[12:59:27:665] : 'Establish Connection' request sent
+[12:59:27:665] : 	BD Address Type: PUBLIC_ADDRESS
+[12:59:27:665] : 	BD Address: F0:FF:00:50:A0:00:00:00
+
+ 12:59:27.6659338 +0.0030226
+
+ 43 59 97 FE 07 00 F0 FF 00 50 A0 00 00            CY—þ..ðÿ.P ..
+
+
+[12:59:27:669] : 'Command Status' event received
+[12:59:27:669] : 	Status: BLE_STATUS_OK
+[12:59:27:676] : 'Establish Connection Response' event received
+[12:59:28:054] : 'Current Connection Parameters' event received
+[12:59:28:054] : 	HCI Status: 0x00
+[12:59:28:054] : 	Connection Interval: 8.75 ms
+[12:59:28:054] : 	Slave Latency: 0
+[12:59:28:054] : 	Supervision Timeout: 100 ms
+[12:59:28:055] : 'Command Complete' event received
+[12:59:28:055] : 	Status: BLE_STATUS_OK
+
+ 12:59:27.6675667 +0.0000141
+
+ BD A7 06 00 7E 04 97 FE 00 00 BD A7 06 00 8F 06   ½§..~.—þ..½§...
+ 97 FE 04 00 BD A7 0B 00 84 06 04 00 00 07 00 00   —þ..½§..„.......
+ 00 0A 00 BD A7 06 00 7F 04 97 FE 00 00            ...½§...—þ..
+
+
+[12:59:28:055] : 'Get local device security keys' request sent
+
+12:59:28.0561530 +0.3784220
+
+ 43 59 A2 FE 00 00                                 CY¢þ..
+
+
+[12:59:28:821] : 'Command Status' event received
+[12:59:28:821] : 	Status: BLE_STATUS_OK
+[12:59:28:821] : 'Get local device security keys response' event received
+[12:59:28:821] : 	Key flags: INITIATOR_ENCRYPTION_INFORMATION, INITIATOR_IDENTITY_INFORMATION, INITIATOR_SIGNATURE_KEY, RESPONDER_ENCRYPTION_INFORMATION, RESPONDER_IDENTITY_INFORMATION, RESPONDER_SIGNATURE_KEY
+[12:59:28:821] : 	Long Term Key (LTK): [D6:93:E8:A4:23:55:48:99:1D:77:61:E6:63:2B:10:8E]
+[12:59:28:821] : 	Encrypted Diversifier (EDIV) and Random Number: [99:1F:26:1E:F6:09:97:2E:AD:7E]
+[12:59:28:821] : 	Identity Resolving Key (IRK): [0A:2D:F4:65:E3:BD:7B:49:1E:B4:C0:95:95:13:46:73]
+[12:59:28:821] : 	Identification Address: [0x00A0500B2E14, PUBLIC_ADDRESS]
+[12:59:28:821] : 	Connection Signature Resolving Key (CSRK): [90:D5:06:95:92:ED:91:D7:A8:9E:2C:DC:4A:93:5B:F9]
+[12:59:28:821] : 'Command Complete' event received
+[12:59:28:821] : 	Status: BLE_STATUS_OK
+
+12:59:28.8177357 +0.0000170
+
+ BD A7 06 00 7E 04 A2 FE 00 00 BD A7 4A 00 99 06   ½§..~.¢þ..½§J.™.
+ A2 FE 77 10 D6 93 E8 A4 23 55 48 99 1D 77 61 E6   ¢þw.Ö“è¤#UH™.waæ
+ 63 2B 10 8E 0A 99 1F 26 1E F6 09 97 2E AD 7E 10   c+.Ž.™.&.ö.—.­~.
+ 0A 2D F4 65 E3 BD 7B 49 1E B4 C0 95 95 13 46 73   .-ôeã½{I.´À••.Fs
+ 14 2E 0B 50 A0 00 00 10 90 D5 06 95 92 ED 91 D7   ...P ...Õ.•’í‘×
+ A8 9E 2C DC 4A 93 5B F9 BD A7 06 00 7F 04 A2 FE   ¨ž,ÜJ“[ù½§...¢þ
+ 00 00                                             ..
+
+
+[12:59:28:825] : 'Set OOB data' request sent
+[12:59:28:825] : 	OOB flag: Disable
+[12:59:28:825] : 	OOB Key: [00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00]
+[12:59:28:825] : 	OOB Data: [00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00]
+ 12:59:28.8268577 +0.0087172
+
+ 43 59 87 FE 25 00 04 00 00 10 00 00 00 00 00 00   CY‡þ%...........
+ 00 00 00 00 00 00 00 00 00 00 10 00 00 00 00 00   ................
+ 00 00 00 00 00 00 00 00 00 00 00                  ...........
+
+[12:59:28:832] : 'Command Status' event received
+[12:59:28:832] : 	Status: BLE_STATUS_OK
+[12:59:28:832] : 'Command Complete' event received
+[12:59:28:832] : 	Status: BLE_STATUS_OK
+
+12:59:28.8314141 +0.0000161
+
+ BD A7 06 00 7E 04 87 FE 00 00 BD A7 06 00 7F 04   ½§..~.‡þ..½§...
+ 87 FE 00 00                                       ‡þ..
+
+[12:59:28:838] : 'Exchange GATT MTU Size' request sent
+[12:59:28:838] : 	MTU: 0x0200
+
+ 12:59:28.8393705 +0.0066944
+
+ 43 59 12 FE 04 00 04 00 00 02                     CY.þ......
+
+[12:59:28:842] : 'Command Status' event received
+[12:59:28:842] : 	Status: BLE_STATUS_OK
+[12:59:28:852] : 'Exchange GATT MTU Size Response' event received
+[12:59:28:852] : 	MTU: 0x0036
+[12:59:28:852] : 'Command Complete' event received
+[12:59:28:852] : 	Status: BLE_STATUS_OK
+
+12:59:28.8410772 +0.0000109
+
+ BD A7 06 00 7E 04 12 FE 00 00 BD A7 08 00 0F 06   ½§..~..þ..½§....
+ 12 FE 04 00 36 00 BD A7 06 00 7F 04 12 FE 00 00   .þ..6.½§....þ..
+
+
+[12:59:28:858] : 'Read using Characteristic UUID' request sent
+[12:59:28:858] : 	Start Handle: 0x0001
+[12:59:28:858] : 	End Handle: 0xFFFF
+[12:59:28:858] : 	UUID: 0x2A00
+
+12:59:28.8604821 +0.0070380
+
+ 43 59 07 FE 09 00 04 00 01 00 2A 01 00 FF FF      CY.þ......*..ÿÿ
+
+
+[12:59:28:863] : 'Command Status' event received
+[12:59:28:863] : 	Status: BLE_STATUS_OK
+[12:59:28:882] : 'Read using Characteristic UUID Response' event received
+[12:59:28:882] : 	Characteristic value 1:
+[12:59:28:882] : 	--------------------------------
+[12:59:28:882] : 	Attribute Handle: 0x0003
+[12:59:28:882] : 	Value: [4E:55:20:53:65:6E:73:6F:72:20:31]
+[12:59:28:883] : 'Command Complete' event received
+[12:59:28:883] : 	Status: BLE_STATUS_OK
+
+12:59:28.8625655 +0.0000385
+
+ BD A7 06 00 7E 04 07 FE 00 00
+ BD A7 15 00 07 06 07 FE 04 00
+ 03 00 0B 00 4E 55 20 53 65 6E
+ 73 6F 72 20 31
+ BD A7 06 00 7F 04 07 FE 00 00            r 1½§....þ..
+
+
+
+=========================   PAIR     ============================
+
+[14:40:41:423] : 'Initiate Pairing' request sent
+
+ 14:40:41.4237211 +6072.5426166
+
+ 43 59 99 FE 02 00 04 00                           CY™þ....
+
+[14:40:41:721] : 'Command Status' event received
+[14:40:41:721] : 	Status: BLE_STATUS_OK
+[14:40:41:723] : 'Authentication Error Notification' event received
+[14:40:41:723] : 	Status: AUTH_ERROR_PAIRING_NOT_SUPPORTED
+Error: gpm.M1107: Authentication failed. Pairing is not supported by the peer device.
+
+
+ 14:40:41.7206192 +0.0000186
+
+ BD A7 06 00 7E 04 99 FE 00 00 BD A7 07 00 93 06   ½§..~.™þ..½§..“.
+ 99 FE 04 00 05                                    ™þ...
+
+
+=========================   CONNECT     ============================
+
+15:58:55:003] : 'Resolve and Set Peer Device BD Address' request sent
+[15:58:55:003] : 	BD Address Type: PUBLIC_ADDRESS
+[15:58:55:003] : 	BD Address: F0:FF:00:50:A0:00:00:00
+
+ 15:58:55.0045180 +59.6657393
+
+ 43 59 A1 FE 07 00 F0 FF 00 50 A0 00 00            CY¡þ..ðÿ.P ..
+
+[15:58:55:006] : 'Command Status' event received
+[15:58:55:006] : 	Status: BLE_STATUS_OK
+[15:58:55:006] : 'Resolve and Set Peer Device BD Address Response' event received
+[15:58:55:006] : 	Status: 0x01
+[15:58:55:007] : 'Command Complete' event received
+[15:58:55:007] : 	Status: BLE_STATUS_OK
+
+15:58:55.0062260 +0.0000122
+
+ BD A7 06 00 7E 04 A1 FE 00 00
+ BD A7 05 00 98 06 A1 FE 01
+ BD A7 06 00 7F 04 A1 FE 00 00            ¡þ.½§...¡þ..
+
+
+[15:58:55:007] : 'Establish Connection' request sent
+[15:58:55:007] : 	BD Address Type: PUBLIC_ADDRESS
+[15:58:55:007] : 	BD Address: F0:FF:00:50:A0:00:00:00
+
+ 15:58:55.0090041 +0.0003754
+
+ 43 59 97 FE 07 00 F0 FF 00 50 A0 00 00            CY—þ..ðÿ.P ..
+
+
+[15:58:55:010] : 'Command Status' event received
+[15:58:55:010] : 	Status: BLE_STATUS_OK
+[15:58:59:130] : 'Establish Connection Response' event received
+[15:58:59:302] : 'Current Connection Parameters' event received
+[15:58:59:302] : 	HCI Status: 0x00
+[15:58:59:302] : 	Connection Interval: 8.75 ms
+[15:58:59:302] : 	Slave Latency: 0
+[15:58:59:302] : 	Supervision Timeout: 100 ms
+[15:58:59:302] : 'Command Complete' event received
+[15:58:59:302] : 	Status: BLE_STATUS_OK
+
+ 15:58:55.0105904 +0.0000125
+
+ BD A7 06 00 7E 04 97 FE 00 00
+ BD A7 06 00 8F 06 97 FE 04 00
+ BD A7 0B 00 84 06 04 00 00 07
+ 00 00 00 0A 00
+ BD A7 06 00 7F 04 97 FE 00 00
+
+[15:58:59:302] : 'Get local device security keys' request sent
+
+15:58:59.3030559 +0.1702518
+
+ 43 59 A2 FE 00 00                                 CY¢þ..
+
+
+[15:58:59:321] : 'Command Status' event received
+[15:58:59:321] : 	Status: BLE_STATUS_OK
+[15:58:59:321] : 'Get local device security keys response' event received
+[15:58:59:321] : 	Key flags: INITIATOR_ENCRYPTION_INFORMATION, INITIATOR_IDENTITY_INFORMATION, INITIATOR_SIGNATURE_KEY, RESPONDER_ENCRYPTION_INFORMATION, RESPONDER_IDENTITY_INFORMATION, RESPONDER_SIGNATURE_KEY
+[15:58:59:321] : 	Long Term Key (LTK): [D6:93:E8:A4:23:55:48:99:1D:77:61:E6:63:2B:10:8E]
+[15:58:59:321] : 	Encrypted Diversifier (EDIV) and Random Number: [99:1F:26:1E:F6:09:97:2E:AD:7E]
+[15:58:59:321] : 	Identity Resolving Key (IRK): [0A:2D:F4:65:E3:BD:7B:49:1E:B4:C0:95:95:13:46:73]
+[15:58:59:321] : 	Identification Address: [0x00A0500B2E14, PUBLIC_ADDRESS]
+[15:58:59:321] : 	Connection Signature Resolving Key (CSRK): [90:D5:06:95:92:ED:91:D7:A8:9E:2C:DC:4A:93:5B:F9]
+[15:58:59:321] : 'Command Complete' event received
+[15:58:59:321] : 	Status: BLE_STATUS_OK
+
+15:58:59.3213621 +0.0000260
+
+ BD A7 06 00 7E 04 A2 FE 00 00
+ BD A7 4A 00 99 06 A2 FE 77 10
+ D6 93 E8 A4 23 55 48 99 1D 77
+ 61 E6 63 2B 10 8E 0A 99 1F 26
+ 1E F6 09 97 2E AD 7E 10 0A 2D
+ F4 65 E3 BD 7B 49 1E B4 C0 95
+ 95 13 46 73 14 2E 0B 50 A0 00
+ 00 10 90 D5 06 95 92 ED 91 D7
+ A8 9E 2C DC 4A 93 5B F9
+ BD A7 06 00 7F 04 A2 FE 00 00                                             ..
+
+[15:58:59:321] : 'Set OOB data' request sent
+[15:58:59:321] : 	OOB flag: Disable
+[15:58:59:321] : 	OOB Key: [00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00]
+[15:58:59:321] : 	OOB Data: [00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00]
+
+15:58:59.3218956 +0.0002486
+
+ 43 59 87 FE 25 00 04 00 00 10 00 00 00 00 00 00   CY‡þ%...........
+ 00 00 00 00 00 00 00 00 00 00 10 00 00 00 00 00   ................
+ 00 00 00 00 00 00 00 00 00 00 00                  ...........
+
+[15:58:59:326] : 'Command Status' event received
+[15:58:59:326] : 	Status: BLE_STATUS_OK
+[15:58:59:327] : 'Command Complete' event received
+[15:58:59:327] : 	Status: BLE_STATUS_OK
+
+15:58:59.3259955 +0.0000132
+
+ BD A7 06 00 7E 04 87 FE 00 00
+ BD A7 06 00 7F 04 87 FE 00 00                                       ‡þ..
+
+
+[15:58:59:327] : 'Exchange GATT MTU Size' request sent
+[15:58:59:327] : 	MTU: 0x0200
+
+ 15:58:59.3280312 +0.0003041
+
+ 43 59 12 FE 04 00 04 00 00 02                     CY.þ......
+
+
+[15:58:59:330] : 'Command Status' event received
+[15:58:59:330] : 	Status: BLE_STATUS_OK
+[15:58:59:341] : 'Exchange GATT MTU Size Response' event received
+[15:58:59:341] : 	MTU: 0x0036
+[15:58:59:341] : 'Command Complete' event received
+[15:58:59:341] : 	Status: BLE_STATUS_OK
+
+15:58:59.3296105 +0.0000115
+
+ BD A7 06 00 7E 04 12 FE 00 00 BD A7 08 00 0F 06   ½§..~..þ..½§....
+ 12 FE 04 00 36 00 BD A7 06 00 7F 04 12 FE 00 00   .þ..6.½§....þ..
+
+
+[15:58:59:342] : 'Read using Characteristic UUID' request sent
+[15:58:59:342] : 	Start Handle: 0x0001
+[15:58:59:342] : 	End Handle: 0xFFFF
+[15:58:59:342] : 	UUID: 0x2A00
+
+ 15:58:59.3430929 +0.0003644
+
+ 43 59 07 FE 09 00 04 00 01 00 2A 01 00 FF FF      CY.þ......*..ÿÿ
+
+
+[15:58:59:344] : 'Command Status' event received
+[15:58:59:344] : 	Status: BLE_STATUS_OK
+[15:58:59:359] : 'Read using Characteristic UUID Response' event received
+[15:58:59:359] : 	Characteristic value 1:
+[15:58:59:359] : 	--------------------------------
+[15:58:59:359] : 	Attribute Handle: 0x0003
+[15:58:59:359] : 	Value: [4E:55:20:53:65:6E:73:6F:72:20:31]
+[15:58:59:360] : 'Command Complete' event received
+[15:58:59:360] : 	Status: BLE_STATUS_OK
+
+15:58:59.3450396 +0.0000103
+
+ BD A7 06 00 7E 04 07 FE 00 00 BD A7 15 00 07 06   ½§..~..þ..½§....
+ 07 FE 04 00 03 00 0B 00 4E 55 20 53 65 6E 73 6F   .þ......NU Senso
+ 72 20 31 BD A7 06 00 7F 04 07 FE 00 00            r 1½§....þ..
+
+
+
+===================READ DATA =================
+
+UIID
+
+
+
+[16:11:27:016] : 'Write Characteristic Descriptor' request sent
+[16:11:27:016] : 	Attribute Handle: 0x0013
+[16:11:27:016] : 	Value: [01]
+
+16:11:27.0179073 +14.7904445
+
+43 59 10 FE 07 00 04 00 13 00 01 00 01            CY.þ.........
+
+
+[16:11:27:020] : 'Command Status' event received
+[16:11:27:020] : 	Status: BLE_STATUS_OK
+[16:11:27:031] : 'Command Complete' event received
+[16:11:27:031] : 	Status: BLE_STATUS_OK
+[16:11:27:044] : 'Characteristic Value Notification' event received
+[16:11:27:044] : 	Attribute Handle: 0x0012
+[16:11:27:044] : 	Value: [37]
+
+ 16:11:27.0198308 +0.0003439
+
+ BD A7 06 00 7E 04 10 FE 00 00
+ BD A7 06 00 7F 04 10 FE 00 00
+ BD A7 09 00 0C 06 04 00 12 00
+ 01 00 37
+
+[16:11:27:044] : 'Read Characteristic Descriptor' request sent
+[16:11:27:044] : 	Attribute Handle: 0x0013
+
+ 16:11:27.0462688 +0.0140187
+
+ 43 59 0E FE 04 00 04 00 13 00                     CY.þ......
+
+
+[16:11:27:049] : 'Command Status' event received
+[16:11:27:049] : 	Status: BLE_STATUS_OK
+[16:11:27:067] : 'Read Characteristic Descriptor Response' event received
+[16:11:27:067] : 	Value: [01:00]
+[16:11:27:085] : 'Command Complete' event received
+[16:11:27:085] : 	Status: BLE_STATUS_OK
+
+ 16:11:27.0480656 +0.0000006
+
+ BD A7 06 00 7E 04 0E FE 00 00
+ BD A7 0A 00 0A 06 0E FE 04 00
+ 02 00 01 00
+ BD A7 06 00 7F 04 0E FE 00 00                                             ..

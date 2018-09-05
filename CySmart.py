@@ -173,7 +173,10 @@ class CySmart(object):
         'CMD_FIND_INCLUDED_SERVICES': binascii.unhexlify("02FE"),
         'CMD_DISCOVER_ALL_CHARACTERISTICS': binascii.unhexlify("03FE"),
         'CMD_INITIATE_PAIRING_REQUEST': binascii.unhexlify("99FE"),
-        'CMD_UPDATE_CONNECTION_PARAMETER_RESPONSE': binascii.unhexlify("9FFE")
+        'CMD_UPDATE_CONNECTION_PARAMETER_RESPONSE': binascii.unhexlify("9FFE"),
+
+        'CMD_GET_LOCAL_SECURITY_KEYS': binascii.unhexlify("A2FE"),
+        'CMD_WRITE_CHAR_DESCRIPTOR_BY_ATTR_HANDLE': binascii.unhexlify("10FE")
     }
 
     Flag_DISABLE_ALL_CHECK = 0x00
@@ -189,6 +192,12 @@ class CySmart(object):
     EVT_COMMAND_STATUS = binascii.unhexlify("7E04")
     EVT_COMMAND_COMPLETE = binascii.unhexlify("7F04")
     EVT_READ_CHARACTERISTIC_VALUE_RESPONSE = binascii.unhexlify("0606")
+    # this should be sent after setting address with a status
+    EVT_RESOLVE_SET_BD_ADDRESS_RESPONSE = binascii.unhexlify("9806")  # unsure
+    EVT_READ_CHAR_UUID_RESPONSE = binascii.unhexlify("0706")  # unsure
+    EVT_CHAR_VALUE_NOTIFICATION = binascii.unhexlify("0C06")
+    EVT_READ_CHAR_DESC_RSP = binascii.unhexlify("0A06")
+
 
     data_array = []
     flag = False
