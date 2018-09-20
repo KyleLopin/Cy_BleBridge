@@ -3,9 +3,11 @@ Code from https://github.com/odwdinc/Cy_BleBridge/blob/master/CySmart.py
 modified to fit with python 3 and fix class naming to CamelCase
 """
 
+import binascii
+import datetime
 import serial
 import time
-import binascii
+
 from struct import *
 import threading
 import queue
@@ -62,7 +64,7 @@ class CySerialProcess(threading.Thread):
 
     def run(self):
         while self.running:
-            time.sleep(1)
+            time.sleep(0.1)
             # print "loop"
             # if not self.in_Q.empty() and self.running and self.nextJob:
             if not self.in_Q.empty() and self.nextJob:
@@ -94,18 +96,19 @@ class CySerialProcess(threading.Thread):
                 # cmd = self.hex_print(self.this_job.cmd)
                 payload = {}
                 for response in data:
-                    # print('response:', response)
+                    print('response:', response)
                     # print(self.this_job.cmd, response['request_cmd'], self.this_job.cmd == response['request_cmd'])
                     if self.this_job.cmd == response['request_cmd']:
+                        self.process_response_packet(response, payload)
                         # print response['cmd']
                         # print('complete: ', self.cy.EVT_COMMAND_COMPLETE)
-                        if self.this_job.wait_for_complete:
-                            if self.cy.EVT_COMMAND_COMPLETE in response['cmd']:
-                                self.nextJob = True
-
-                        else:
-                            if not self.nextJob:
-                                self.nextJob = True
+                        # if self.cy.EVT_COMMAND_COMPLETE in response['cmd']:
+                        #     if self.this_job.wait_for_complete:
+                        #         self.nextJob = True
+                        #
+                        # else:
+                        #     if not self.nextJob:
+                        #         self.nextJob = True
                         if len(response['payload']) > 0 and \
                                 self.cy.EVT_COMMAND_STATUS not in response['cmd'] and \
                                 self.cy.EVT_COMMAND_COMPLETE not in response['cmd']:
@@ -123,6 +126,40 @@ class CySerialProcess(threading.Thread):
 
                 if self.nextJob:
                     self.this_job.finished = True
+
+    def process_response_packet(self, response, payload):
+        if self.this_job.cmd != response['request_cmd']:  # the packet should respond
+            print("[{0}] Error on response packet".format(self.time_str()))
+            return
+        if self.cy.EVT_COMMAND_COMPLETE in response['cmd']:
+            print("[{0}] 'Command Status' event received".format(
+                datetime.datetime.now().strftime("%H:%M:%S.%f")))
+            if response['payload'] == b'\x00\x00':
+                status_str = 'BLE_STATUS_OK'
+            else:
+                status_str = 'ERROR_CODE'  # TODO: fill these in
+            print("[{0}] Status: {1}".format(
+                  datetime.datetime.now().strftime("%H:%M:%S.%f"), status_str))
+            if self.this_job.wait_for_complete:
+                self.nextJob = True
+            return
+        else:
+            if not self.nextJob:
+                self.nextJob = True
+            return
+        if self.cy.EVT_COMMAND_STATUS in response['cmd']:
+            print("[{0}] 'Command Complete' event received".format(self.time_str()))
+            if response['payload'] == b'\x00\x00':
+                status_str = 'BLE_STATUS_OK'
+            else:
+                status_str = 'ERROR_CODE'  # TODO: fill these in
+            print("[{0}] Status: {1}".format(self.time_str(), status_str))
+            return
+        # no COMMAND STATUS or COMPLETE send so check if there is a payload
+        if len(response['payload']) > 0:
+            print("payload[response['cmd']]: ", payload[response['cmd']])
+            print("payload: ", payload)
+
 
     def found_data(self, data):
         # print('found data: ', data, type(data), binascii.unhexlify("bda7"))
@@ -146,8 +183,12 @@ class CySerialProcess(threading.Thread):
             data['request_cmd'] = cmd[4:6]
             data['payload'] = cmd[6:]
             self.data_array.append(data)
-        print('data array: ', self.data_array)
+            print('data array: ', self.data_array)
         return self.data_array
+
+    @staticmethod
+    def time_str():
+        return datetime.datetime.now().strftime("%H:%M:%S.%f")
 
     def kill(self):
         print("kill")
@@ -197,7 +238,6 @@ class CySmart(object):
     EVT_READ_CHAR_UUID_RESPONSE = binascii.unhexlify("0706")  # unsure
     EVT_CHAR_VALUE_NOTIFICATION = binascii.unhexlify("0C06")
     EVT_READ_CHAR_DESC_RSP = binascii.unhexlify("0A06")
-
 
     data_array = []
     flag = False
@@ -350,7 +390,8 @@ class CySmart(object):
         # print"Read_Characteristic_Value: ",response
         # event, rest = response[0:3], response[4:]
         out__response = []
-        if self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE in response:
+        print("READ CHAR: ", response)
+        if hasattr(response, '__iter__') and self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE in response:
             for cs in response[self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE]:
                 out__response.append(cs[4:])
 
