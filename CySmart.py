@@ -64,7 +64,7 @@ class CySerialProcess(threading.Thread):
 
     def run(self):
         while self.running:
-            time.sleep(0.1)
+            time.sleep(1)
             # print "loop"
             # if not self.in_Q.empty() and self.running and self.nextJob:
             if not self.in_Q.empty() and self.nextJob:
@@ -96,7 +96,7 @@ class CySerialProcess(threading.Thread):
                 # cmd = self.hex_print(self.this_job.cmd)
                 payload = {}
                 for response in data:
-                    print('response:', response)
+                    # print('response:', response)
                     # print(self.this_job.cmd, response['request_cmd'], self.this_job.cmd == response['request_cmd'])
                     if self.this_job.cmd == response['request_cmd']:
                         self.process_response_packet(response, payload)
@@ -146,7 +146,6 @@ class CySerialProcess(threading.Thread):
         else:
             if not self.nextJob:
                 self.nextJob = True
-            return
         if self.cy.EVT_COMMAND_STATUS in response['cmd']:
             print("[{0}] 'Command Complete' event received".format(self.time_str()))
             if response['payload'] == b'\x00\x00':
@@ -157,9 +156,20 @@ class CySerialProcess(threading.Thread):
             return
         # no COMMAND STATUS or COMPLETE send so check if there is a payload
         if len(response['payload']) > 0:
-            print("payload[response['cmd']]: ", payload[response['cmd']])
+            print("response['cmd']: ", response['cmd'])
             print("payload: ", payload)
 
+
+    def get_extra_bytes(self, bytes_to_get):
+        time.sleep(0.2)
+        if self.serial_in.inWaiting():
+            data = self.serial_in.read(self.serial_in.inWaiting())
+            len_data = len(data)
+            print("Got {0} more bytes".format(len_data))
+            print(data)
+            if len_data == bytes_to_get:
+                return data
+        print("Tried to get more data but failed")
 
     def found_data(self, data):
         # print('found data: ', data, type(data), binascii.unhexlify("bda7"))
@@ -176,6 +186,11 @@ class CySerialProcess(threading.Thread):
             # print('len = ', actual_len, signalled_len, cmd[0:2], )
             if actual_len != signalled_len:
                 print("Error in reading: add code to see if more bytes are in the serial port")
+                print("look for {0} more bytes".format(signalled_len-actual_len))
+                print(data)
+                print(cmd)
+                self.get_extra_bytes(signalled_len-actual_len)
+                raise Exception()
 
             data = dict()
             data['len'] = signalled_len
@@ -183,7 +198,7 @@ class CySerialProcess(threading.Thread):
             data['request_cmd'] = cmd[4:6]
             data['payload'] = cmd[6:]
             self.data_array.append(data)
-            print('data array: ', self.data_array)
+            # print('data array: ', self.data_array)
         return self.data_array
 
     @staticmethod
@@ -238,6 +253,15 @@ class CySmart(object):
     EVT_READ_CHAR_UUID_RESPONSE = binascii.unhexlify("0706")  # unsure
     EVT_CHAR_VALUE_NOTIFICATION = binascii.unhexlify("0C06")
     EVT_READ_CHAR_DESC_RSP = binascii.unhexlify("0A06")
+
+    EVENTS = {
+        b'\x7E\x04': 'Command Status',
+        b'\x7F\x04': 'Command Complete',
+        b'\x98\x06': 'Resolve and Set Peer Device BD Address Response',
+        b'\x8F\x06': 'Establish Connection Response',
+        b'\x84\x06': 'Current Connection Parameters',
+        b'\x99\x06': 'Get local device security keys response'
+    }
 
     data_array = []
     flag = False
