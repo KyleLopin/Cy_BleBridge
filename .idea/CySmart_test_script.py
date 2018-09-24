@@ -29,7 +29,7 @@ cy.send_command(cy.Commands['CMD_STOP_SCAN'])
 
 if isinstance(cyd, dict) and cy.EVT_SCAN_PROGRESS_RESULT in cyd:
     clients = cy.get_scan_data(cyd)
-    print('clients: ', clients)
+    #  print('clients: ', clients)
     for client in clients:
         print('client: ', client, client['name'])
         print('client name: ', client['name'])
@@ -43,5 +43,6 @@ if isinstance(cyd, dict) and cy.EVT_SCAN_PROGRESS_RESULT in cyd:
             print("=====   START CONNECTION   ============")
             sys.stdout.flush()
             cy.open_connection(client['BD_Address'])
-            cir = cy.read_characteristic_value(0x000E)
+            # cir = cy.read_characteristic_value(0x0012)
+            cir = cy.write_characteristic_value_by_attr_handle(0x0012, 0x01)
             print('cir = ', cir)

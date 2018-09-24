@@ -64,8 +64,8 @@ class CySerialProcess(threading.Thread):
 
     def run(self):
         while self.running:
-            time.sleep(1)
-            # print "loop"
+            time.sleep(0.5)
+            # print("loop ", self.serial_in.inWaiting())
             # if not self.in_Q.empty() and self.running and self.nextJob:
             if not self.in_Q.empty() and self.nextJob:
                 self.nextJob = False
@@ -74,9 +74,10 @@ class CySerialProcess(threading.Thread):
                 self.this_job.starTime = datetime.datetime.now()
                 print("writing to device: ", self.this_job.command)
                 self.serial_in.write(self.this_job.command)
+                time.sleep(1)
                 while self.serial_in.out_waiting:
                     pass
-            if self.get_timeout() > 2000:
+            if self.get_timeout() > 3000:
                 print("Timeout")
                 sys.stdout.flush()
                 self.nextJob = True
@@ -89,7 +90,7 @@ class CySerialProcess(threading.Thread):
                 sys.stdout.flush()
                 data = self.serial_in.read(self.serial_in.inWaiting())
                 # print self.hexPrint(data)
-                print('raw data: ', data)
+                # print('raw data: ', data)
                 # print('data read:  ', convert_to_string(data))
                 # data = binascii.hexlify(data)
                 data = self.found_data(data)
@@ -97,8 +98,9 @@ class CySerialProcess(threading.Thread):
                 payload = {}
                 for response in data:
                     # print('response:', response)
-                    # print(self.this_job.cmd, response['request_cmd'], self.this_job.cmd == response['request_cmd'])
-                    if self.this_job.cmd == response['request_cmd']:
+                    print(self.this_job.cmd, response['request_cmd'], self.this_job.cmd == response['request_cmd'])
+                    if self.this_job.cmd == response['request_cmd'] or \
+                       response['request_cmd'] == b'\x04\x00':
                         self.process_response_packet(response, payload)
                         # print response['cmd']
                         # print('complete: ', self.cy.EVT_COMMAND_COMPLETE)
@@ -159,16 +161,14 @@ class CySerialProcess(threading.Thread):
             print("response['cmd']: ", response['cmd'])
             print("payload: ", payload)
 
-
     def get_extra_bytes(self, bytes_to_get):
-        time.sleep(0.2)
+        time.sleep(0.5)
         if self.serial_in.inWaiting():
             data = self.serial_in.read(self.serial_in.inWaiting())
             len_data = len(data)
             print("Got {0} more bytes".format(len_data))
-            print(data)
-            if len_data == bytes_to_get:
-                return data
+            print(data, len_data, bytes_to_get, len_data == bytes_to_get)
+            return data
         print("Tried to get more data but failed")
 
     def found_data(self, data):
@@ -189,8 +189,10 @@ class CySerialProcess(threading.Thread):
                 print("look for {0} more bytes".format(signalled_len-actual_len))
                 print(data)
                 print(cmd)
-                self.get_extra_bytes(signalled_len-actual_len)
-                raise Exception()
+                new_data = self.get_extra_bytes(signalled_len-actual_len)
+                print('new data: ', new_data, data)
+                data += new_data
+                # raise Exception()
 
             data = dict()
             data['len'] = signalled_len
@@ -331,6 +333,12 @@ class CySmart(object):
             else:
                 device.close()
 
+    def get_notified_respose(self):
+        if not self.out_q.empty():
+            data = self.out_q.get()
+            print("data: ", data)
+            return data
+
     def get_scan_data(self, cyd):
         """
         Take in a packet of data from the Cypress CySmart dongle and parse out the information
@@ -343,7 +351,7 @@ class CySmart(object):
         if self.EVT_SCAN_PROGRESS_RESULT in cyd:
             for scan in cyd[self.EVT_SCAN_PROGRESS_RESULT]:
                 # print self.hexPrint(scan)
-                print('scan: ', scan)
+                # print('scan: ', scan)
                 sys.stdout.flush()
 
                 ble = dict(BD_Address=[], RSSI=0, Advertisement_Event_Data=[], name="")
@@ -353,11 +361,11 @@ class CySmart(object):
                 ble['Advertisement_Event_Data'] = scan[10:-1]
                 if len(scan) > 10:
                     input_string = scan
-                    print(input_string)
+                    # print(input_string)
 
                     if b'\t' in input_string:
-                        print(input_string.split(b'\t'))
-                        print('cehck: ', )
+                        # print(input_string.split(b'\t'))
+                        # print('cehck: ', )
                         nm_length = int(self.hex_array(input_string.split(b'\t')[0])[-1], 16) - 1
                         ble['name'] = input_string.split(b'\t')[1][0:nm_length]
                 scan_list.append(ble)
@@ -408,13 +416,17 @@ class CySmart(object):
                                  self._return('B H H H', (0x01, uuid, start_handle, end_handle)))
 
     def read_characteristic_value(self, attribute):
+        print("[{0}] 'Read Characteristic Descriptor' request sent".format(
+            get_time()))
+
+
         cmd = pack('H H H', *(self.Flag_RETURN, self.Flag_RETURN, attribute))
         response = self.send_command(self.Commands['CMD_READ_CHARACTERISTIC_VALUE'], cmd)
-
+        print("Attribute handle: {0}".format(attribute))
         # print"Read_Characteristic_Value: ",response
         # event, rest = response[0:3], response[4:]
         out__response = []
-        print("READ CHAR: ", response)
+        # print("READ CHAR: ", response)
         if hasattr(response, '__iter__') and self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE in response:
             for cs in response[self.EVT_READ_CHARACTERISTIC_VALUE_RESPONSE]:
                 out__response.append(cs[4:])
@@ -426,7 +438,23 @@ class CySmart(object):
         le = len(payload)
         package = pram_count + pack("H", *(attribute,)) + pack("H", *(le,)) + payload
         package = pack("H", *(len(package),)) + package
+        print("[{0}] 'Write Characteristic Descriptor' request sent".format(
+            get_time()))
+        # print("Attribute handle: {0}".format(attribute))
+        print("Value: {0}".format(payload))
         return self.send_command(self.Commands['CMD_WRITE_CHARACTERISTIC_VALUE'], package)
+
+    def write_characteristic_value_by_attr_handle(self, attribute, payload):
+        pram_count = binascii.unhexlify("0400")
+        print('payload: ', payload)
+        le = len(payload)
+        package = pram_count + pack("H", *(attribute,)) + pack("H", *(le,)) + payload
+        package = pack("H", *(len(package),)) + package
+        print("[{0}] 'Write Characteristic Descriptor' request sent".format(
+            get_time()))
+        print("Attribute handle: {0}".format(attribute))
+        print("Value: {0}".format(payload))
+        return self.send_command(self.Commands['CMD_WRITE_CHAR_DESCRIPTOR_BY_ATTR_HANDLE'], package)
 
     def read_all_characteristics(self, data_set):
         for se in data_set:
@@ -449,6 +477,10 @@ class CySmart(object):
     def close(self):
         self.myThread.kill()
         self.myThread.join()
+
+
+def get_time():
+    return datetime.datetime.now().strftime("%H:%M:%S.%f")
 
 
 def convert_to_bytes(_string: str)-> bytes:

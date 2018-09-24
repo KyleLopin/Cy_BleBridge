@@ -1,0 +1,37 @@
+[14:36:55:547] : 'Write Characteristic Value' request sent
+[14:36:55:547] : 	Attribute Handle: 0x0012
+[14:36:55:547] : 	Value: [01]
+
+ 43 59 0B FE 07 00 04 00 12 00 01 00 01            CY.þ.........
+
+
+[14:36:55:581] : 'Command Status' event received
+[14:36:55:581] : 	Status: BLE_STATUS_OK
+[14:36:55:581] : 'Command Complete' event received
+[14:36:55:581] : 	Status: BLE_STATUS_OK
+[14:36:56:746] : 'Characteristic Value Notification' event received
+[14:36:56:746] : 	Attribute Handle: 0x000E
+[14:36:56:746] : 	Value: [41:38:57:98:40:AB:ED:25:41:48:E2:04:40:FC:0F:F8:41:3D:F5:16:40:7D:30:60:40:5E:0C:3E:40:F7:33:56:40:B8:C2:B2:41:09:38:DC:40:3F:2A:B3:40:2B:A2:BF:00:00:00]
+[14:36:57:893] : 'Characteristic Value Notification' event received
+[14:36:57:893] : 	Attribute Handle: 0x000E
+[14:36:57:893] : 	Value: [43:1C:2D:C4:42:77:24:E5:42:FF:AB:4B:42:B9:1B:BA:43:23:3E:9F:42:82:8C:F2:42:39:0A:33:42:95:59:AF:42:46:9E:19:42:A9:9F:2D:42:A1:4C:07:42:C6:74:2C:00:00:01]
+
+ BD A7 06 00 7E 04 0B FE 00 00
+
+ BD A7 06 00 7F 04 0B FE 00 00
+
+ BD A7 3B 00 0C 06 04 00 0E 00
+ 33 00 41 38 57 98 40 AB ED 25
+ 41 48 E2 04 40 FC 0F F8 41 3D
+ F5 16 40 7D 30 60 40 5E 0C 3E
+ 40 F7 33 56 40 B8 C2 B2 41 09
+ 38 DC 40 3F 2A B3 40 2B A2 BF
+ 00 00 00
+
+ BD A7 3B 00 0C 06 04 00 0E 00
+ 33 00 43 1C 2D C4 42 77 24 E5
+ 42 FF AB 4B 42 B9 1B BA 43 23
+ 3E 9F 42 82 8C F2 42 39 0A 33
+ 42 95 59 AF 42 46 9E 19 42 A9
+ 9F 2D 42 A1 4C 07 42 C6 74 2C
+ 00 00 01

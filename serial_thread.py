@@ -11,6 +11,9 @@ import time
 
 __author__ = 'Kyle Vitautas Lopin'
 
+CYSMART_PACKET_DIVIDER = b'\xbd\xa7'
+
+
 class SerialInputThread(threading.Thread):
     def __init__(self, port: serial.Serial, data_queue: queue.Queue, cutter: str):
 
@@ -46,4 +49,13 @@ class SerialHandler(threading.Thread):
     def __init__(self, port: serial.Serial,
                  to_device_queue:queue.Queue, from_device_queue:queue.Queue):
 
-        pass
+        self.data_pkt_from_device = queue.Queue()
+        self.running = True
+        serial_input_stream = SerialInputThread(port, self.data_pkt_from_device, )
+
+    def run(self):
+        while self.running:
+            if not self.data_pkt_from_device.empty():
+                # there is a data packet coming in that needs to be processed
+                pass
+
