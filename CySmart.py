@@ -6,6 +6,7 @@ modified to fit with python 3 and fix class naming to CamelCase
 import binascii
 import datetime
 import serial
+import serial.tools.list_ports
 import time
 
 from struct import *
@@ -14,12 +15,16 @@ import queue
 import sys
 import datetime
 
+# local files
+import serial_thread
+
 
 # Serial communication settings
-BAUD_RATE = 115200
+BAUD_RATE = 921600
 STOP_BITS = serial.STOPBITS_ONE
 PARITY = serial.PARITY_NONE
 BYTE_SIZE = serial.EIGHTBITS
+DONGLE_PORT_DESC = "KitProg USB-UART"
 
 
 class CySerialCommand(object):
@@ -122,9 +127,14 @@ class CySerialProcess(threading.Thread):
 
                 # if len(payload) > 0:
                 if payload:
+                    print("putting payload")
                     self.out_Q.put(payload)
+                    print("put payload: ", self.out_Q.qsize())
                 elif self.nextJob and not self.this_job.wait_for_payload:
+                    print("putting payload2")
                     self.out_Q.put(True)
+                else:
+                    print("not putting payload")
 
                 if self.nextJob:
                     self.this_job.finished = True
@@ -191,7 +201,7 @@ class CySerialProcess(threading.Thread):
                 print(cmd)
                 new_data = self.get_extra_bytes(signalled_len-actual_len)
                 print('new data: ', new_data, data)
-                data += new_data
+                data['payload'] += new_data
                 # raise Exception()
 
             data = dict()
@@ -273,9 +283,10 @@ class CySmart(object):
 
     def __init__(self):
         self.Flag_RETURN = None
-        self.in_q = None
-        self.out_q = None
+        self.in_q = queue.Queue(maxsize=1000)
+        self.out_q = queue.Queue(maxsize=1000)
         self.myThread = None
+        self.device = None
 
     @staticmethod
     def hex_print(s):
@@ -298,6 +309,7 @@ class CySmart(object):
             CySerialCommand(self.Commands['CMD_Header'], command, payload, wait_for_payload, wait_for_complete))
         while self.out_q.empty():
             pass
+        print("returning an out q")
         return self.out_q.get()
 
     def start(self, _flag, com_port=None):
@@ -305,35 +317,49 @@ class CySmart(object):
             device = self.auto_find_com_port()
             self.device = device
         self.Flag_RETURN = _flag
-        self.in_q = queue.Queue(maxsize=1000)
-        self.out_q = queue.Queue(maxsize=1000)
 
+        if not self.device:
+            print("No device detected")
+            return False
         self.myThread = CySerialProcess(self.in_q, self.out_q, device, self)
         self.myThread.start()
         print("kkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
         self.send_command(self.Commands['CMD_INIT_BLE_STACK'], self.Commands['CMD_Footer'])
+        return True
 
     def auto_find_com_port(self):
-        available_ports = find_available_ports()  # list of serial devices
+        # available_ports = find_available_ports()  # list of serial devices
+        available_ports = serial.tools.list_ports
+        print(available_ports.comports())
         id_send_message = b"43 59 0A FC 00 00"
         # id_return_section = "43 79 70 72 65 73 73"  # Cypress
         id_return_section1 = b"Cypress Semiconductor"
         id_return_section2 = b"CySmart BLE"
-        for port in available_ports:  # type: serial.Serial
-            device = serial.Serial(port.port, baudrate=BAUD_RATE, stopbits=STOP_BITS,
-                                   parity=PARITY, bytesize=BYTE_SIZE, timeout=1)
-            # device.write(binascii.unhexlify(id_send_message))
-            device.write(convert_to_bytes(id_send_message))
-            time.sleep(0.1)
-            return_message = device.read_all()
-            # return_message = convert_to_string(return_message)
-            if id_return_section1 in return_message and id_return_section2 in return_message:
-                print('Found Cypress Dongle')
-                return device
-            else:
-                device.close()
+        for port in available_ports.comports():  # type: serial.Serial
+            print("port:", port)
+            print(port.device)
+            print(port.name)
+            print(port.description)
+
+            if DONGLE_PORT_DESC in port.description:  # check the name associated with the port
+
+                device = serial.Serial(port.device, baudrate=BAUD_RATE, stopbits=STOP_BITS,
+                                       parity=PARITY, bytesize=BYTE_SIZE, timeout=1)
+                # device.write(binascii.unhexlify(id_send_message))
+                device.write(convert_to_bytes(id_send_message))
+                time.sleep(0.5)
+                return_message = device.read_all()
+                print(return_message)
+                # return_message = convert_to_string(return_message)
+                if id_return_section1 in return_message and id_return_section2 in return_message:
+                    print('Found Cypress Dongle')
+                    return device
+                else:
+                    print("No device at: {0}".format(port))
+                    device.close()
 
     def get_notified_respose(self):
+        print("get notification: ", self.out_q.qsize())
         if not self.out_q.empty():
             data = self.out_q.get()
             print("data: ", data)

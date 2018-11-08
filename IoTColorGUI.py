@@ -10,9 +10,11 @@ import struct
 import time
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 # local files
-import CySmart
+#import CySmart
+import CySmart_v2 as CySmart
 import pyplot_embed
 
 __author__ = 'Kyle Vitautas Lopin'
@@ -29,7 +31,12 @@ class IoTSpectrumGUI(tk.Tk):
         self.graph = pyplot_embed.SpectroPlotterV2(self)
         self.graph.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
         cy = CySmart.CySmart()
-        cy.start(cy.Flag_API_RETURN)
+
+        flag = cy.start()
+        print("flag: ", flag)
+        if not flag:
+            messagebox.showerror("Connection Error", "No dongle found")
+            return
         cyd = cy.send_command(cy.Commands['CMD_START_SCAN'], wait_for_payload=True, wait_for_complete=True)
         cy.send_command(cy.Commands['CMD_STOP_SCAN'])
 
@@ -40,6 +47,7 @@ class IoTSpectrumGUI(tk.Tk):
                 cy.open_connection(device['BD_Address'])
 
         self.device = cy
+        tk.Button(self, text="Save", command=self.graph.save_data).pack(side=tk.BOTTOM, pady=20)
         self.run_button = tk.Button(self, text="Run", command=self.run_button)
         self.run_button.pack(side=tk.BOTTOM)
 
@@ -50,12 +58,22 @@ class IoTSpectrumGUI(tk.Tk):
         cy.write_characteristic_value(0x0012, b'\x01')
         # cir = cy.read_characteristic_value(0x000E)
         # print('cir = ', len(cir[0]), cir)
-        time.sleep(1)
+        time.sleep(2)
         data = cy.get_notified_respose()
-        self.figure_out_data(data[b'\x0c\x06'][0], "No flash")
-        time.sleep(1)
-        data = cy.get_notified_respose()
-        self.figure_out_data(data[b'\x0c\x06'][1], "Flash")
+        if data:
+            print("=================get data1: ", data)
+            self.figure_out_data(data[b'\x0c\x06'][0], "No flash")
+            self.figure_out_data(data[b'\x0c\x06'][1], "Flash")
+        else:
+            print("=================no data1")
+
+        # time.sleep(1.2)
+        # data = cy.get_notified_respose()
+        # if data:
+        #     print("====================get data2: ", data)
+        #     self.figure_out_data(data[b'\x0c\x06'][1], "Flash")
+        # else:
+        #     print("=======================no data2")
         self.run_button.config(state=tk.ACTIVE)
 
     def figure_out_data(self, raw_data, type_read):
